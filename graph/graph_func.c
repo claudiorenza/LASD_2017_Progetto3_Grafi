@@ -45,7 +45,7 @@ void graph_func_insertKey(GRAPHroot grafo_root)	{
 		int key;
         //
         //
-        (grafo_root->n_vertex)++;
+        //(grafo_root->n_vertex)++;
         printf("\tGrafo aggiornato\n");
         graph_func_print(grafo_root);			//stampa dell'grafo aggiornato
 	}
