@@ -1,4 +1,5 @@
-Solo alla sorgente, si cerca un arco in salita; durante la visita, invece, vedo i percorsi sia in salita che discesa.
+Solo alla sorgente, si cerca un arco in salita; durante la visita, invece, vedo i percorsi solo in salita se la destinazione
+è più in alto rispetto alla posizione attuale, altrimenti posso vedere sia in salita che in discesa.
 Appena si passa ad un nodo in cui arco è in discesa, tutti i successivi nodi da visitare dovranno essere in discesa.
 Usare parametro "isDiscesa", che si comporta come la mancanza di archi adiacenti per un nodo.
 

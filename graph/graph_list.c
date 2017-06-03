@@ -144,85 +144,140 @@ void graph_list_transpose(GRAPHlist grafo_list)    {
     }
     for(idx=0;idx<=idx_max;idx++) {  //Visita delle Liste e inserimento dei vertici nel grafo trasposto
         if(grafo_list->adj[idx])
-            L_arr_adj[idx] = list_trasp_recv(L_arr_adj[idx], ((GRAPHlist *)grafo_list), idx);    //N.B.: L_arr_adj[idx] diventa NULL, quindi nessuna perdita di dati in deallocazione
+            L_arr_adj[idx] = list_trasp_recv(L_arr_adj[idx], (grafo_list), idx);    //N.B.: L_arr_adj[idx] diventa NULL, quindi nessuna perdita di dati in deallocazione
     }
     free(L_arr_adj);
 }
 */
 
 //Visualizzazione del percorso minimo fra due vertici (BFS)
-void graph_list_path(GRAPHlist grafo_list, int i_src, int j_dst)  {
-    if(i_src != j_dst)  {
-        int *pred = graph_list_BFS((GRAPHlist *)grafo_list, i_src);
-        graph_list_path_print((GRAPHlist *)grafo_list, i_src, j_dst, pred);
+void graph_list_path(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
+    if(idx_src != idx_dst)  {
+        int *pred = graph_list_BFS(grafo_list, idx_src);
+        graph_list_path_print(grafo_list, idx_src, idx_dst, pred);
     } else
         printf("ATTENZIONE: Sorgente e destinazione coincidono\n\n");
 }
 
 //Visita in ampiezza con creazione e ritorno dell'array degli indici dei predecessori
-int *graph_list_BFS(GRAPHlist *grafo_list, int i_src)  {
+int *graph_list_BFS(GRAPHlist grafo_list, int idx_src)  {
     int idx, idx_max = grafo_list->idx_max;
-    int *pred = (int *)malloc(sizeof(int) * idx_max);    //creo l'array degli indici dei predecessori
+    int *pred = (int *)calloc(idx_max, sizeof(int));    //creo l'array degli indici dei predecessori
 
     char *color = (char *)malloc(sizeof(char) * idx_max);   //creo l'array dei colori associati ai vertici, quantificati in grafo_list[0]
 
     QUEUE coda = queue_init(idx_max);  //creo una coda che ha una grandezza massima del numero dei vertici del Grafo
-    LISTadj adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
+    LISTel adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
 
     for(idx=0;idx<idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_list->adj[idx] && idx != i_src) {
+        if(grafo_list->adj[idx] && idx != idx_src) {
             color[idx] = 'w';
             pred[idx] = -1;
         }
     }
 
-    color[i_src] = 'g'; //GRIGIO sul vertice sorgente
-    pred[i_src]= -1;  //che non ha predecessori
-    queue_enqueue(coda, i_src);
+    color[idx_src] = 'g'; //GRIGIO sul vertice sorgente
+    pred[idx_src]= -1;  //che non ha predecessori
+    queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
     while(!queue_check_empty(coda))    {    //ciclo fin quando non svuoto la coda
         idx = queue_dequeue(coda);    //estraggo la testa della Coda
-        adj_curr = grafo_list->adj[idx]->adj;  //prendo la Lista di Adiacenza
+        adj_curr = *(grafo_list->adj[idx]);  //prendo la Lista di Adiacenza dell'elemento appena estratto
         while(adj_curr) {
-            if(color[adj_curr->node->idx] == 'w')  { //se BIANCO
-                color[adj_curr->node->idx] = 'g';   //coloro di GRIGIO
-                pred[adj_curr->node->idx] = idx;      //assegno il suo predecessore
-                queue_enqueue(coda, adj_curr->node->idx);   //inserisco l'indice nella coda per le future iterazioni
+            if(color[adj_curr->vrtx_dst] == 'w')  { //se BIANCO (white)
+                color[adj_curr->vrtx_dst] = 'g';   //coloro di GRIGIO (grey)
+                pred[adj_curr->vrtx_dst] = idx;      //assegno il suo predecessore
+                queue_enqueue(coda, adj_curr->vrtx_dst);   //inserisco l'indice nella coda per le future iterazioni
             }
             adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
         }
-        color[idx] = 'b';  //completo la visita del nodo in NERO
+        color[idx] = 'b';  //completo la visita del nodo in NERO (black)
     }
     free(color);
     free(coda);
     return pred;
 }
 
+
+//Visualizzazione del percorso minimo fra due vertici (BFS)
+void graph_list_path_peak(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
+    if(idx_src != idx_dst)  {
+        int *pred = graph_list_BFS_peak(grafo_list, idx_src, idx_dst);
+        graph_list_path_print(grafo_list, idx_src, idx_dst, pred);
+    } else
+        printf("ATTENZIONE: Sorgente e destinazione coincidono\n\n");
+}
+
+//Visita in ampiezza con creazione e ritorno dell'array degli indici dei predecessori
+int *graph_list_BFS_peak(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
+    int idx, idx_max = grafo_list->idx_max;
+    PRED *pred = (struct Predecessore *)calloc(idx_max, sizeof(PRED));    //creo l'array degli indici dei predecessori
+
+    char *color = (char *)malloc(sizeof(char) * idx_max);   //creo l'array dei colori associati ai vertici, quantificati in grafo_list[0]
+
+    QUEUE coda = queue_init(idx_max);  //creo una coda che ha una grandezza massima del numero dei vertici del Grafo
+    LISTel adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
+
+    for(idx=0;idx<idx_max;idx++)    {       //inizializzazione grafo
+        if(grafo_list->adj[idx] && idx != idx_src) {
+            color[idx] = 'w';
+            pred[idx] = -1;
+        }
+    }
+
+    color[idx_src] = 'g'; //GRIGIO sul vertice sorgente
+    pred[idx_src]= -1;  //che non ha predecessori
+    queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
+    while(!queue_check_empty(coda))    {    //ciclo fin quando non svuoto la coda
+        idx = queue_dequeue(coda);    //estraggo la testa della Coda
+        adj_curr = *(grafo_list->adj[idx]);  //prendo la Lista di Adiacenza dell'elemento appena estratto
+        while(adj_curr) {
+            if(color[adj_curr->vrtx_dst] == 'w')  { //se BIANCO (white)
+                if(idx == idx_src)  {   //se parto dalla sorgente, devo sicuramente salire, quindi seleziono fra gli adiacenti solo i nodi che salgono
+                    if
+                
+                }
+                
+                
+                color[adj_curr->vrtx_dst] = 'g';   //coloro di GRIGIO (grey)
+                pred[adj_curr->vrtx_dst] = idx;      //assegno il suo predecessore
+                queue_enqueue(coda, adj_curr->vrtx_dst);   //inserisco l'indice nella coda per le future iterazioni
+            }
+            adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
+        }
+        color[idx] = 'b';  //completo la visita del nodo in NERO (black)
+    }
+    free(color);
+    free(coda);
+    return pred;
+}
+
+
 //Stampa del percorso minimo fra due vertici definito dall'array dei predecessori
-void graph_list_path_print(GRAPHlist *grafo_list, int i_src, int j, int *pred)  {
-    if(i_src == j)
-        graph_printNode(grafo_list[i_src]->elem, i_src);
-    else if(pred[j] == -1)
-        printf("ATTENZIONE: non esiste alcun cammino tra la sorgente e la destinazione scelta \n\n");
+void graph_list_path_print(GRAPHlist grafo_list, int idx_src, int idx_dst, int *pred)  {
+    if(idx_src == idx_dst)
+        printf("%d ", idx_src)
+    else if(pred[idx_dst] == -1)
+        printf("ATTENZIONE: non esiste alcun cammino tra la sorgente e la destinazione scelta\n\n");
     else    {
-        graph_list_path_print(grafo_list, i_src, pred[j], pred);
-        graph_printNode(grafo_list[j]->elem, j);
+        graph_list_path_print(grafo_list, idx_src, pred[idx_dst], pred);
+        printf("-> %d ", idx_dst);
     }
 }
 
-//F11: Ricerca nel grafo di un arco di ritorno, ovvero di un ciclo
+/*Ricerca nel grafo di un arco di ritorno, ovvero di un ciclo
 void graph_list_check_cycle(GRAPHlist grafo_list)  {
     int idx=0;
     while(!grafo_list->adj[idx])   //vedo l'indice minimo del primo elemento presente attualmente nel grafo
         idx++;
-    if(graph_list_DFS((GRAPHlist *)grafo_list, idx))  //se c'� un ciclo, lo notifico
+    if(graph_list_DFS(grafo_list, idx))  //se c'� un ciclo, lo notifico
         printf("Il grafo contiene un ciclo\n\n");
     else
         printf("Il grafo NON contiene un ciclo\n\n");
 }
 
 
-//Visita in profondit� con verifica di ciclicit�
-int graph_list_DFS(GRAPHlist *grafo_list, int i_src)  {
+//Visita in profondità con verifica di ciclicità
+int graph_list_DFS(GRAPHlist grafo_list, int idx_src)  {
     int idx, idx_max = grafo_list->idx_max, check_cycle = 0; //intero che controlla l'effettiva presenza di un ciclo
     int *pred = (int *)malloc(sizeof(int) * idx_max);    //per futura utitlit�, dispongo anche l'array degli indici dei predecessori
 
@@ -230,16 +285,16 @@ int graph_list_DFS(GRAPHlist *grafo_list, int i_src)  {
 
     LISTadj adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
 
-    for(idx=i_src;idx<=idx_max;idx++)    {       //inizializzazione grafo
+    for(idx=idx_src;idx<=idx_max;idx++)    {       //inizializzazione grafo
         if(grafo_list->adj[idx])
             color[idx] = 'w';
             pred[idx] = -1;
     }
 
-    adj_curr = grafo_list[i_src]->adj;   //prendo la Lista di Adiacenza del primo elemento
+    adj_curr = grafo_list[idx_src]->adj;   //prendo la Lista di Adiacenza del primo elemento
     while(adj_curr) {
-        if(color[adj_curr->node->idx] == 'w')   //se BIANCO
-            check_cycle = graph_list_DFS_visit(grafo_list, adj_curr->node->idx, pred, color, check_cycle); //visito l'elemento della lista di adiacenza
+        if(color[adj_curr->vrtx_dst] == 'w')   //se BIANCO
+            check_cycle = graph_list_DFS_visit(grafo_list, adj_curr->vrtx_dst, pred, color, check_cycle); //visito l'elemento della lista di adiacenza
         adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
     }
     free(color);
@@ -247,22 +302,22 @@ int graph_list_DFS(GRAPHlist *grafo_list, int i_src)  {
 }
 
 //Durante la visita in profondità, posso notificare la presenza di un ciclo all'interno del grafo
-int graph_list_DFS_visit(GRAPHlist *grafo_list, int idx_curr, int *pred, char *color, int check_cycle)    {
+int graph_list_DFS_visit(GRAPHlist grafo_list, int idx_curr, int *pred, char *color, int check_cycle)    {
     LISTadj adj_curr = grafo_list[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
 
     while(adj_curr)    {    //ciclo fin quando non svuoto la coda
-        if(color[adj_curr->node->idx] == 'w')  { //se BIANCO
-            pred[adj_curr->node->idx] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
-            check_cycle = graph_list_DFS_visit(grafo_list, adj_curr->node->idx, pred, color, check_cycle);    //visito il nodo appena incontrato
-        } else if(!check_cycle && color[adj_curr->node->idx] == 'g')       //se mi ritrovo un GRIGIO, � un arco di ritorno (ciclo)
+        if(color[adj_curr->vrtx_dst] == 'w')  { //se BIANCO
+            pred[adj_curr->vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
+            check_cycle = graph_list_DFS_visit(grafo_list, adj_curr->vrtx_dst, pred, color, check_cycle);    //visito il nodo appena incontrato
+        } else if(!check_cycle && color[adj_curr->vrtx_dst] == 'g')       //se mi ritrovo un GRIGIO, � un arco di ritorno (ciclo)
             check_cycle = 1;    //N.B.: � consono continuare l'algoritmo, invece di ritornare subito la notifica
         adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
     }
     color[idx_curr] = 'b';  //completo la visita del nodo in NERO
     return check_cycle;
 }
-
+*/
 
 //Stampa del Grafo con la Lista di Adiacenza dei rispettivi vertici
 void graph_list_adj_print(LIST *grafo_list_adj, int idx_max, int showlist)   {

@@ -18,6 +18,11 @@ struct GrafoLista   {
 };
 typedef struct GrafoLista * GRAPHlist;
 
+struct Predecessore {
+    int pred;   //indice del predecessore
+    int weight_sum;     //distanza calcolata dalla sorgente fino al nodo attuale
+}
+typedef struct Predecessore * PRED;
 
 GRAPHlist graph_list_init(int idx_max);
 
@@ -34,13 +39,19 @@ void graph_list_delKey(GRAPHlist grafo_list, int idx_src);
 
 void graph_list_transpose(GRAPHlist grafo_list);
 
-void graph_list_path(GRAPHlist grafo_list, int i_src, int j_dst);
-int *graph_list_BFS(GRAPHlist *grafo_list, int i_src);
-void graph_list_path_print(GRAPHlist *grafo_list, int i_src, int j, int *pred);
+void graph_list_path(GRAPHlist grafo_list, int idx_src, int idx_dst);
+int *graph_list_BFS(GRAPHlist grafo_list, int idx_src);
 
+void graph_list_path_peak(GRAPHlist grafo_list, int idx_src, int idx_dst);
+int *graph_list_BFS_peak(GRAPHlist grafo_list, int idx_src);
+
+void graph_list_path_print(GRAPHlist grafo_list, int idx_src, int idx_dst, int *pred);
+
+/*
 void graph_list_check_cycle(GRAPHlist grafo_list);
-int graph_list_DFS(GRAPHlist *grafo_list, int i_src);
-int graph_list_DFS_visit(GRAPHlist *grafo_list, int idx_curr, int *pred, char *color, int check_cycle);
+int graph_list_DFS(GRAPHlist grafo_list, int idx_src);
+int graph_list_DFS_visit(GRAPHlist grafo_list, int idx_curr, int *pred, char *color, int check_cycle);
+*/
 
 void graph_list_adj_print(LIST *grafo_list_adj, int idx_max, int showlist);
 
