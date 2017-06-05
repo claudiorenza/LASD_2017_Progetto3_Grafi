@@ -231,13 +231,13 @@ int *graph_list_BFS_peak(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
         adj_curr = *(grafo_list->adj[idx]);  //prendo la Lista di Adiacenza dell'elemento appena estratto
         while(adj_curr) {
             if(color[adj_curr->vrtx_dst] == 'w')  { //se BIANCO (white)
-                if(graph_list_conditionAdj(idx, idx_src, idx_dst, adj_curr, bfs_pred) {   
+                if(graph_list_conditionAdj(idx, idx_src, idx_dst, adj_curr, bfs_pred) {    //esistono delle condizioni specifiche per poter inserire gli adiacenti ai fini della visita
                     color[adj_curr->vrtx_dst] = 'g';   //coloro di GRIGIO (grey)
                     bfs_pred[adj_curr->vrtx_dst]->pred = idx;      //assegno il suo predecessore
-                    bfs_pred[adj_curr->vrtx_dst]->weight_sum += adj_curr->weight; //sommo la distanza accumulata
-                    queue_enqueue(coda, adj_curr->vrtx_dst);   //inserisco l'indice nella coda per le future iterazioni
+                    bfs_pred[adj_curr->vrtx_dst]->weight_sum += adj_curr->weight; //sommo la distanza accumulata con il peso dell'arco adiacente
+                    queue_enqueue(coda, adj_curr->vrtx_dst);   //inserisco l'indice dell'adiacente nella coda per le future iterazioni
                 }
-            } else if(color[adj_curr->vrtx_dst] == 'b') {   //nel caso un adiacente incrocia un percorso già visitato, effettuo il controllo delle distanze sommate per determinare il percorso più breve
+            } else if(color[adj_curr->vrtx_dst] == 'g') {   //nel caso un adiacente incrocia un percorso già accoda, effettuo il controllo delle distanze sommate per determinare il percorso più breve
 
 
 
@@ -252,11 +252,11 @@ int *graph_list_BFS_peak(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
     return pred;
 }
 
-//Semplificazione della condizione per l'inserimento in coda di elementi adiacenti
+//Semplificazione delle condizioni per l'inserimento in coda di elementi adiacenti
 //N.B.: per una migliore comprensione, invece di inserire tutte le condizioni in un unico 'if', possiamo analizzare separatamente i casi validi per l'inserimento in coda
 int graph_list_conditionAdj(int idx, int idx_src, int idx_dst, LISTel adj_curr, PRED *bfs_pred)  {
-    int ret = 0;    //inizializzazione a 0 (nel caso nessuna condizione sia verificata, ritorna 0)
-    if(idx == idx_src || idx < idx_dst) {   //Se parto dalla sorgente, oppure la destinazione è situata più in alto,
+    int ret = 0;    //inizializzazione a 0 (nel caso nessuna condizione sia verificata, la funzione ritornerà 0)
+    if(idx == idx_src || idx < idx_dst) {   //Se parto dalla sorgente, oppure la destinazione è situata più in alto e sei appena salito,
         if(idx < adj_curr->vrtx_dst)   {        //devo necessariamente salire, selezionando solo i nodi adiacenti in salita.
             if(adj_curr->vrtx_dst != idx_dst)       //Se salendo non trovo già la destinazione,
                 ret = 1;                            //inserisco il nodo adiacente in coda.
@@ -264,16 +264,15 @@ int graph_list_conditionAdj(int idx, int idx_src, int idx_dst, LISTel adj_curr, 
     } else if(idx > idx_dst)    {           //Se, invece, mi trovo più in alto rispetto alla destinazione,
         if(bfs_pred[idx]->pred < idx)    {      //se il predecessore è più in basso rispetto alla posizione attuale (ho appena effettuato una salita)
             if(idx < adj_curr->vrtx_dst && adj_curr->vrtx_dst != idx_dst) //e salendo non trovo già la destinazione,
-                ret = 1;                        //inserisco il nodo adiacente in coda.
-            else if(idx > adj_curr->vrtx_dst)   //In caso di discesa
-                ret = 1;                        //non esiste discriminante per l'inserimento
-        }      
-        else {                                  //Se il predecessore è più in alto rispetto alla posizione attuale (ho appena effettuato una discesa),
-            if(idx > adj_curr->vrtx_dst)            //devo necessariamente scendere,
+                ret = 1;                            //inserisco il nodo adiacente in coda.
+            else if(idx > adj_curr->vrtx_dst)       //In caso di discesa,
+                ret = 1;                            //non esiste discriminante per l'inserimento.
+        } else {                                //Se il predecessore è più in alto rispetto alla posizione attuale (ho appena effettuato una discesa),
+            if(idx > adj_curr->vrtx_dst && idx > idx_dst) //devo necessariamente scendere, non andando oltre al di sotto del nodo di destinazione
                 ret = 1;                            //inserendo solo i nodi adiacenti in discesa.
         }                    
     }
-    //N.B.: se idx è il nodo di destinazione, non visito i suoi nodi adiacenti (non entrerò in alcuna 'if'),
+    //N.B.: se "idx" è attualmente il nodo di destinazione "idx_dst", non visito i suoi nodi adiacenti (non entrerò in alcuna 'if' e ritornerò 0),
     //siccome dovrò eventualmente confrontare gli altri percorsi provenienti dai suoi adiacenti, come archi entranti 
     return ret;
 }
