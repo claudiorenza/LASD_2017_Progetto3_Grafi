@@ -61,7 +61,7 @@ void graph_list_insArc(GRAPHlist grafo_list, int idx_src, int idx_dst, int weigh
             printf("Quale peso vuoi inserire all'arco? (Numero reale): ");
             weight ;
             if((weight = io_getInteger()) < 1)
-                printf("ATTENZIONE: valore non valido\n\n");
+                printf("ATTENZIONE: Valore non valido\n\n");
         }while(weight < 1);
         graph_list_adj_mirrorFree(adj_slave);   //non ho più bisogno del mirroring del grafo
         list_insertHead(grafo_list[idx_src]->adj, idx_dst, weight); //inserimento in testo nella Lista di Adiacenza di idx_src
@@ -112,7 +112,6 @@ LIST graph_list_nodeFree(LIST grafo_list_adj)	{
 void graph_list_delKey(GRAPHlist grafo_list, int idx_src) {
     if(grafo_list->adj[idx_src])    {
         int idx_del;
-
         LIST *adj_slave = graph_list_adj_mirror(grafo_list);
 
         printf("%d: ", idx_src);
@@ -177,7 +176,7 @@ int *graph_list_BFS(GRAPHlist grafo_list, int idx_src)  {
     }
 
     color[idx_src] = 'g'; //GRIGIO sul vertice sorgente
-    pred[idx_src]= -1;  //che non ha predecessori
+    bfs_pred[idx_src]->pred= -1;  //che non ha predecessori
     queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
     while(!queue_check_empty(coda))    {    //ciclo fin quando non svuoto la coda
         idx = queue_dequeue(coda);    //estraggo la testa della Coda
@@ -210,37 +209,39 @@ void graph_list_path_peak(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
 //Visita in ampiezza con creazione e ritorno dell'array degli indici dei predecessori
 int *graph_list_BFS_peak(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
     int idx, idx_max = grafo_list->idx_max;
-    PRED *pred = (struct Predecessore *)calloc(idx_max, sizeof(PRED));    //creo l'array degli indici dei predecessori
-
+    
     char *color = (char *)malloc(sizeof(char) * idx_max);   //creo l'array dei colori associati ai vertici, quantificati in grafo_list[0]
-
+    PRED *bfs_pred = (struct Predecessore *)calloc(idx_max, sizeof(struct Predecessore));    //creo l'array degli indici dei predecessori
+    
     QUEUE coda = queue_init(idx_max);  //creo una coda che ha una grandezza massima del numero dei vertici del Grafo
     LISTel adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
 
     for(idx=0;idx<idx_max;idx++)    {       //inizializzazione grafo
         if(grafo_list->adj[idx] && idx != idx_src) {
             color[idx] = 'w';
-            pred[idx] = -1;
+            bfs_pred[idx]->pred = -1;
+            bfs_pred[idx]->weight_sum = 0;
         }
     }
 
     color[idx_src] = 'g'; //GRIGIO sul vertice sorgente
-    pred[idx_src]= -1;  //che non ha predecessori
     queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
     while(!queue_check_empty(coda))    {    //ciclo fin quando non svuoto la coda
         idx = queue_dequeue(coda);    //estraggo la testa della Coda
         adj_curr = *(grafo_list->adj[idx]);  //prendo la Lista di Adiacenza dell'elemento appena estratto
         while(adj_curr) {
             if(color[adj_curr->vrtx_dst] == 'w')  { //se BIANCO (white)
-                if(idx == idx_src)  {   //se parto dalla sorgente, devo sicuramente salire, quindi seleziono fra gli adiacenti solo i nodi che salgono
-                    if
-                
+                if(graph_list_conditionAdj(idx, idx_src, idx_dst, adj_curr, bfs_pred) {   
+                    color[adj_curr->vrtx_dst] = 'g';   //coloro di GRIGIO (grey)
+                    bfs_pred[adj_curr->vrtx_dst]->pred = idx;      //assegno il suo predecessore
+                    bfs_pred[adj_curr->vrtx_dst]->weight_sum += adj_curr->weight; //sommo la distanza accumulata
+                    queue_enqueue(coda, adj_curr->vrtx_dst);   //inserisco l'indice nella coda per le future iterazioni
                 }
-                
-                
-                color[adj_curr->vrtx_dst] = 'g';   //coloro di GRIGIO (grey)
-                pred[adj_curr->vrtx_dst] = idx;      //assegno il suo predecessore
-                queue_enqueue(coda, adj_curr->vrtx_dst);   //inserisco l'indice nella coda per le future iterazioni
+            } else if(color[adj_curr->vrtx_dst] == 'b') {   //nel caso un adiacente incrocia un percorso già visitato, effettuo il controllo delle distanze sommate per determinare il percorso più breve
+
+
+
+
             }
             adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
         }
@@ -250,6 +251,33 @@ int *graph_list_BFS_peak(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
     free(coda);
     return pred;
 }
+
+//Semplificazione della condizione per l'inserimento in coda di elementi adiacenti
+//N.B.: per una migliore comprensione, invece di inserire tutte le condizioni in un unico 'if', possiamo analizzare separatamente i casi validi per l'inserimento in coda
+int graph_list_conditionAdj(int idx, int idx_src, int idx_dst, LISTel adj_curr, PRED *bfs_pred)  {
+    int ret = 0;    //inizializzazione a 0 (nel caso nessuna condizione sia verificata, ritorna 0)
+    if(idx == idx_src || idx < idx_dst) {   //Se parto dalla sorgente, oppure la destinazione è situata più in alto,
+        if(idx < adj_curr->vrtx_dst)   {        //devo necessariamente salire, selezionando solo i nodi adiacenti in salita.
+            if(adj_curr->vrtx_dst != idx_dst)       //Se salendo non trovo già la destinazione,
+                ret = 1;                            //inserisco il nodo adiacente in coda.
+        }
+    } else if(idx > idx_dst)    {           //Se, invece, mi trovo più in alto rispetto alla destinazione,
+        if(bfs_pred[idx]->pred < idx)    {      //se il predecessore è più in basso rispetto alla posizione attuale (ho appena effettuato una salita)
+            if(idx < adj_curr->vrtx_dst && adj_curr->vrtx_dst != idx_dst) //e salendo non trovo già la destinazione,
+                ret = 1;                        //inserisco il nodo adiacente in coda.
+            else if(idx > adj_curr->vrtx_dst)   //In caso di discesa
+                ret = 1;                        //non esiste discriminante per l'inserimento
+        }      
+        else {                                  //Se il predecessore è più in alto rispetto alla posizione attuale (ho appena effettuato una discesa),
+            if(idx > adj_curr->vrtx_dst)            //devo necessariamente scendere,
+                ret = 1;                            //inserendo solo i nodi adiacenti in discesa.
+        }                    
+    }
+    //N.B.: se idx è il nodo di destinazione, non visito i suoi nodi adiacenti (non entrerò in alcuna 'if'),
+    //siccome dovrò eventualmente confrontare gli altri percorsi provenienti dai suoi adiacenti, come archi entranti 
+    return ret;
+}
+
 
 
 //Stampa del percorso minimo fra due vertici definito dall'array dei predecessori
