@@ -42,8 +42,6 @@ void graph_list_transpose(GRAPHlist grafo_list);
 void graph_list_path(GRAPHlist grafo_list, int idx_src, int idx_dst);
 int *graph_list_BFS(GRAPHlist grafo_list, int idx_src);
 
-void graph_list_path_peak(GRAPHlist grafo_list, int idx_src, int idx_dst);
-int *graph_list_BFS_peak(GRAPHlist grafo_list, int idx_src);
 int graph_list_conditionAdj(int idx, int idx_src, int idx_dst, LISTel adj_curr, PRED *bfs_pred);
 
 void graph_list_path_print(GRAPHlist grafo_list, int idx_src, int idx_dst, int *pred);
