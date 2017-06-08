@@ -11,16 +11,24 @@
 #include "../prQueue/prQueue.h"
 
 
+struct GrafoVertice    {
+    int height; //altezza del vertice
+    LIST adj;   //lista degli elementi adiacenti 
+}
+typedef struct GrafoVertice * GRAPHvrtx
+
+
 struct GrafoLista   {
     int n_vrtx;    //numero di nodi del grafo
     int idx_max;    //indice massimo raggiunto
-    LIST *adj;   //array delle liste di adiacenza, sfruttando l'indice come identificativo del vertice del grafo
+    struct GRAPHvrtx *grafo_vrtx;   //array dei vertici del grafo
 };
 typedef struct GrafoLista * GRAPHlist;
 
+
 struct Predecessore {
-    int pred;   //indice del predecessore
-    int weight_sum;     //distanza calcolata dalla sorgente fino al nodo attuale
+    int pred;     //indice del predecessore
+    int dist;     //distanza calcolata dalla sorgente fino al nodo attuale
 }
 typedef struct Predecessore * PRED;
 

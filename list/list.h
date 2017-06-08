@@ -9,8 +9,7 @@ struct Lista    {
     int weight;
     struct Lista *next;
 };
-typedef struct Lista ** LIST;   //puntatore all'elemento della lista
-typedef struct Lista * LISTel;    //elemento della lista
+typedef struct Lista * LIST;    //elemento della lista
 
 
 LIST list_newNode(int vrtx_dst, int weight);

@@ -3,15 +3,16 @@
 //Inizializzazione del Grafo, con elementi da riempire con vertici
 GRAPHlist graph_list_init(int idx_max)   {
     GRAPHlist grafo_list = NULL;
-    if((grafo_list = (struct GrafoLista *)malloc(sizeof(struct GrafoLista))) && (grafo_list->adj = (LIST *)calloc(MAX_graph, sizeof(LIST))))  { //array dei puntatori ai vertici del Grafo
+    if((grafo_list = (struct GrafoLista *)malloc(sizeof(struct GrafoLista)))    //allocazione della struct per il grafo
+    && (grafo_list->grafo_vrtx = (struct GrafoVertice **)calloc(MAX_graph, sizeof(struct GrafoVertice *))))  { //array dei puntatori ai vertici del Grafo (inizializzati a NULL)
         grafo_list->n_vrtx = 0;
         grafo_list->idx_max = idx_max;   //in questa posizione verrà registrato/aggiornato l'ultimo indice utilizzato dai vertici del grafo
     } else {
         printf("[MEM] ATTENZIONE: Problema di allocazione ");
         if(!grafo_list)
             printf("GRAPHlist ");
-        else if(!grafo_list->adj)
-            printf("LIST * ");
+        else if(!(grafo_list->grafo_vrtx))
+            printf("GRAPHvrtx * ");
         printf("- graph_list_init\n");
         exit(1);
     }
@@ -21,13 +22,15 @@ GRAPHlist graph_list_init(int idx_max)   {
 //Inserimento/Allocazione di un nuovo vertice nel Grafo e nella Lista di Adiacenza
 void graph_list_insVertex(GRAPHlist grafo_list, int idx) {
     if(idx == -1)    {   //se non è stato indicato manualmente l'indice del vertice
-        while(!(grafo_list->adj[idx == random_num(0,255)]));  //cerco un vertice casuale disponibile
+        while(!(grafo_list->grafo_vrtx[idx == random_num(0,255)]))  //cerco un vertice casuale disponibile
+            ;  
     }
     printf("DEBUG insVertex: %d\n", idx);
     if(idx > grafo_list->idx_max)    
         grafo_list->idx_max = idx; //se ho superato il margine, aggiorno il contatore dell'ultimo indice
-    if((grafo_list->adj[idx] = (LIST)calloc(1, sizeof(LISTel))))  {  //assegno un puntatore della Lista di adiacenza, pronta ad aggiungere archi ai vertici adiacenti
+    if((grafo_list->grafo_vrtx[idx] = (struct GrafoVertice *)malloc(sizeof(struct GrafoVertice *))))  {  //assegno un puntatore della Lista di adiacenza, pronta ad aggiungere archi ai vertici adiacenti
         printf("Vertice %d correttamente inserito nel Grafo\n", idx);
+        grafo_list->grafo_vrtx[idx]
         grafo_list->n_vertex += 1;
     } else  {
         printf("[MEM] ATTENZIONE: Problema di allocazione LIST - graph_list_insVertex\n");
@@ -74,8 +77,8 @@ void graph_list_insArc(GRAPHlist grafo_list, int idx_src, int idx_dst, int weigh
 GRAPHlist graph_list_deleteGraph(GRAPHlist grafo_list) {
     int idx;
     for(idx=0;idx<grafo_list->idx_max;idx++){
-        if(grafo_list->adj[idx])
-            grafo_list->adj[idx] = graph_list_nodeFree(grafo_list->adj[idx]);
+        if(grafo_list->grafo_vrtx[idx]->adj)
+            grafo_list->grafo_vrtx[idx]->adj = graph_list_nodeFree(grafo_list->grafo_vrtx[idx]->adj);
     }
     return NULL;
 }
@@ -85,13 +88,13 @@ GRAPHlist graph_list_deleteGraph(GRAPHlist grafo_list) {
 void graph_list_delVertex(GRAPHlist grafo_list, int idx_del, int n_vrtx)  {
     int idx;
     for(idx=0;idx<=grafo_list->idx_max;idx++) {
-        if(grafo_list->adj[idx] && idx!=idx_del)
-            list_delKey(grafo_list->adj[idx], idx_del); //CHECK: passaggio del riferimento
+        if(grafo_list->grafo_vrtx[idx]->adj && idx!=idx_del)
+            list_delKey(grafo_list->grafo_vrtx[idx]->adj, idx_del); //CHECK: passaggio del riferimento
         else if(idx==idx_del)    //elimino subito il vertice dell'indice scelto con la relativa lista
-            grafo_list->adj[idx] = graph_list_nodeFree(grafo_list->adj[idx]);
+            grafo_list->grafo_vrtx[idx]->adj = graph_list_nodeFree(grafo_list->grafo_vrtx[idx]->adj);
     }
     if(idx_del == grafo_list->idx_max) {//se il vertice da eliminare è proprio l'ultimo, aggiorno anche il valore del margine massimo dell'array
-        while(idx_del > 0 && !(grafo_list->adj[idx]))    //cerco il minimo vertice disponibile
+        while(idx_del > 0 && !(grafo_list->grafo_vrtx[idx]->adj))    //cerco il minimo vertice disponibile
             idx_del--;   //decremento fin quando non trovo un vertice presente
         }
         grafo_list->idx_max = idx_del; //se ho superato il margine, aggiorno il contatore dell'ultimo indice
@@ -136,14 +139,14 @@ void graph_list_transpose(GRAPHlist grafo_list)    {
     L_arr_adj = (struct ListaAdj **)malloc(sizeof(struct ListaAdj *) * idx_max);
 
     for(idx=0;idx<=idx_max;idx++) {  //Inizializzazione con copia dei riferimenti alle Liste
-        if(grafo_list->adj[idx])   {
-            L_arr_adj[idx] = ((GRAPHlist)grafo_list->adj[idx])->adj;     //memorizzo idx riferimenti nell'array delle Liste
-            ((GRAPHlist)grafo_list->adj[idx])->adj = NULL;             //tolgo idx riferimenti nel grafo per gli inserimenti di 'list_trasp_recv'
+        if(grafo_list->grafo_vrtx[idx]->adj)   {
+            L_arr_grafo_vrtx[idx]->adj = ((GRAPHlist)grafo_list->grafo_vrtx[idx]->adj)->adj;     //memorizzo idx riferimenti nell'array delle Liste
+            ((GRAPHlist)grafo_list->grafo_vrtx[idx]->adj)->adj = NULL;             //tolgo idx riferimenti nel grafo per gli inserimenti di 'list_trasp_recv'
         }
     }
     for(idx=0;idx<=idx_max;idx++) {  //Visita delle Liste e inserimento dei vertici nel grafo trasposto
-        if(grafo_list->adj[idx])
-            L_arr_adj[idx] = list_trasp_recv(L_arr_adj[idx], (grafo_list), idx);    //N.B.: L_arr_adj[idx] diventa NULL, quindi nessuna perdita di dati in deallocazione
+        if(grafo_list->grafo_vrtx[idx]->adj)
+            L_arr_grafo_vrtx[idx]->adj = list_trasp_recv(L_arr_grafo_vrtx[idx]->adj, (grafo_list), idx);    //N.B.: L_arr_grafo_vrtx[idx]->adj diventa NULL, quindi nessuna perdita di dati in deallocazione
     }
     free(L_arr_adj);
 }
@@ -169,7 +172,7 @@ int *graph_list_BFS(GRAPHlist grafo_list, int idx_src)  {
     LISTel adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
 
     for(idx=0;idx<idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_list->adj[idx] && idx != idx_src) {
+        if(grafo_list->grafo_vrtx[idx]->adj && idx != idx_src) {
             color[idx] = 'w';
             pred[idx] = -1;
         }
@@ -180,7 +183,7 @@ int *graph_list_BFS(GRAPHlist grafo_list, int idx_src)  {
     queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
     while(!queue_check_empty(coda))    {    //ciclo fin quando non svuoto la coda
         idx = queue_dequeue(coda);    //estraggo la testa della Coda
-        adj_curr = *(grafo_list->adj[idx]);  //prendo la Lista di Adiacenza dell'elemento appena estratto
+        adj_curr = *(grafo_list->grafo_vrtx[idx]->adj);  //prendo la Lista di Adiacenza dell'elemento appena estratto
         while(adj_curr) {
             if(color[adj_curr->vrtx_dst] == 'w')  { //se BIANCO (white)
                 color[adj_curr->vrtx_dst] = 'g';   //coloro di GRIGIO (grey)
@@ -238,7 +241,7 @@ void graph_list_path_print(GRAPHlist grafo_list, int idx_src, int idx_dst, int *
 //Ricerca nel grafo di un arco di ritorno, ovvero di un ciclo
 void graph_list_check_cycle(GRAPHlist grafo_list)  {
     int idx=0;
-    while(!grafo_list->adj[idx])   //vedo l'indice minimo del primo elemento presente attualmente nel grafo
+    while(!grafo_list->grafo_vrtx[idx]->adj)   //vedo l'indice minimo del primo elemento presente attualmente nel grafo
         idx++;
     if(graph_list_DFS(grafo_list, idx))  //se c'� un ciclo, lo notifico
         printf("Il grafo contiene un ciclo\n\n");
@@ -257,7 +260,7 @@ int graph_list_DFS(GRAPHlist grafo_list, int idx_src)  {
     LISTadj adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
 
     for(idx=idx_src;idx<=idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_list->adj[idx])
+        if(grafo_list->grafo_vrtx[idx]->adj)
             color[idx] = 'w';
             pred[idx] = -1;
     }
@@ -294,11 +297,11 @@ int graph_list_DFS_visit(GRAPHlist grafo_list, int idx_curr, int *pred, char *co
 void graph_list_adj_print(LIST *grafo_list_adj, int idx_max, int showlist)   {
     int idx;
     for(idx=0;idx<=idx_max;idx++) {
-        if(grafo_list_adj[idx])   { //se esiste il vertice nell'array delle liste
+        if(grafo_list_grafo_vrtx[idx]->adj)   { //se esiste il vertice nell'array delle liste
             printf("%d", idx);
             if(showlist)    //si può richiedere dal parametro 'showlist' passando '1' per mostrare la Lista di Adiacenza del vertice attuale
                 printf(":");
-                list_visit(*grafo_list_adj[idx], NULL); //passo la lista di adiacenza del vertice attuale
+                list_visit(*grafo_list_grafo_vrtx[idx]->adj, NULL); //passo la lista di adiacenza del vertice attuale
             printf("\n");
         }
     }
@@ -310,7 +313,7 @@ LIST *graph_list_adj_mirror(GRAPHlist grafo_list)    {
     LIST *adj_slave = NULL;
     if(adj_slave = (LIST *)calloc(grafo_list->idx_max, sizeof(LIST))) {
         for(idx=0;idx<=grafo_list->idx_max;idx++)
-            adj_slave[idx] = grafo_list->adj[idx];    //copio i riferimenti di tutti i nodi (disponibili e non);
+            adj_slave[idx] = grafo_list->grafo_vrtx[idx]->adj;    //copio i riferimenti di tutti i nodi (disponibili e non);
     }
 
     return adj_slave;
