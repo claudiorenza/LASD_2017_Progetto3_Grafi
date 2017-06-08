@@ -1,4 +1,4 @@
-#include "graph_menu.h"
+#include "graph_func.h"
 
 //interfaccia utente
 int graph_func_menu(GRAPHroot grafo_root, int idx)	{

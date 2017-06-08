@@ -21,7 +21,8 @@ typedef struct GrafoVertice * GRAPHvrtx
 struct GrafoLista   {
     int n_vrtx;    //numero di nodi del grafo
     int idx_max;    //indice massimo raggiunto
-    struct GRAPHvrtx *grafo_vrtx;   //array dei vertici del grafo
+    LIST *heights; //array delle altezze disponibili
+    struct GRAPHvrtx *vrtx;   //array dei vertici del grafo
 };
 typedef struct GrafoLista * GRAPHlist;
 
@@ -36,7 +37,7 @@ GRAPHlist graph_list_init(int idx_max);
 
 void graph_list_insVertex(GRAPHlist grafo_list, int idx, void key);
 
-void graph_list_insArc(GRAPHlist grafo_list, int idx_src, int idx_dst, int weight, int n_vrtx);
+void graph_list_insArc(GRAPHlist grafo_list, int idx_src, int idx_dst);
 
 GRAPHlist graph_list_deleteGRAPHlist(GRAPHlist grafo_list);
 
@@ -50,7 +51,7 @@ void graph_list_transpose(GRAPHlist grafo_list);
 void graph_list_path(GRAPHlist grafo_list, int idx_src, int idx_dst);
 int *graph_list_BFS(GRAPHlist grafo_list, int idx_src);
 
-int graph_list_conditionAdj(int idx, int idx_src, int idx_dst, LISTel adj_curr, PRED *bfs_pred);
+int graph_list_conditionAdj(int idx, int idx_src, int idx_dst, LIST adj_curr, PRED *bfs_pred);
 
 void graph_list_path_print(GRAPHlist grafo_list, int idx_src, int idx_dst, int *pred);
 
