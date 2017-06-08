@@ -5,10 +5,11 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "graph.h"
+
+#include "graph_sp.h"
 #include "../io/io.h"
 #include "../list/list.h"
-#include "../prQueue/prQueue.h"
+#include "../queue/queue.h"
 
 
 struct GrafoVertice    {
@@ -27,45 +28,34 @@ struct GrafoLista   {
 typedef struct GrafoLista * GRAPHlist;
 
 
-struct Predecessore {
-    int pred;     //indice del predecessore
-    int dist;     //distanza calcolata dalla sorgente fino al nodo attuale
-}
-typedef struct Predecessore * PRED;
+GRAPHlist graph_list_init();
 
-GRAPHlist graph_list_init(int idx_max);
+void graph_list_insVertex(GRAPHlist grafo_list, int idx, int height, int dup);
 
-void graph_list_insVertex(GRAPHlist grafo_list, int idx, void key);
+void graph_list_insArc(GRAPHlist grafo_list, int idx_src, int idx_dst, int weight);
 
-void graph_list_insArc(GRAPHlist grafo_list, int idx_src, int idx_dst);
+void graph_list_deleteGraph(GRAPHlist grafo_list);
 
-GRAPHlist graph_list_deleteGRAPHlist(GRAPHlist grafo_list);
+void graph_list_delVertex(GRAPHlist grafo_list, int idx_del);
+LIST graph_list_delVertex_undirectedArcs(GRAPHlist grafo_list, LIST L_curr, int idx_del);
 
-void graph_list_delVertex(GRAPHlist grafo_list, int idx_del, int n_vrtx);
-GRAPHlist graph_list_nodeFree(GRAPHlist G_curr);
+void graph_list_delArc(GRAPHlist grafo_list, int idx_src);
 
-void graph_list_delKey(GRAPHlist grafo_list, int idx_src);
-
-void graph_list_transpose(GRAPHlist grafo_list);
 
 void graph_list_path(GRAPHlist grafo_list, int idx_src, int idx_dst);
-int *graph_list_BFS(GRAPHlist grafo_list, int idx_src);
-
-int graph_list_conditionAdj(int idx, int idx_src, int idx_dst, LIST adj_curr, PRED *bfs_pred);
-
 void graph_list_path_print(GRAPHlist grafo_list, int idx_src, int idx_dst, int *pred);
 
-/*
-void graph_list_check_cycle(GRAPHlist grafo_list);
-int graph_list_DFS(GRAPHlist grafo_list, int idx_src);
-int graph_list_DFS_visit(GRAPHlist grafo_list, int idx_curr, int *pred, char *color, int check_cycle);
-*/
+int *graph_list_BFS(GRAPHlist grafo_list, int idx_src);
 
-void graph_list_adj_print(LIST *grafo_list_adj, int idx_max, int showlist);
+int *graph_list_DFS(GRAPHlist grafo_list, int idx_src);
+void graph_list_DFS_visit(GRAPHlist grafo_list, int idx_curr, int *pred, char *color);
+
+
+void grafo_list_print(GRAPHlist grafo_list, int showlist);
 
 LIST *graph_list_adj_mirror(GRAPHlist grafo_list);
 void graph_list_adj_mirrorFree(LIST *adj_slave, int idx_max);
 
 
-#endif // graph_LIST_H_INCLUDED
+#endif // GRAPH_LIST_H_INCLUDED
 

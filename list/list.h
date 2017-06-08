@@ -12,9 +12,9 @@ typedef struct Lista * LIST;    //elemento della lista
 
 LIST list_newNode(int idx_vrtx_dst, int weight);
 
-void list_insertHead(LIST lista, int key);
+LIST list_insertHead(LIST lista, int key);
 
-void list_delKey(LIST lista, int key);
+LIST list_delKey(LIST lista, int key);
 
 int list_visit(LIST L_curr, LIST *L_slave);
 

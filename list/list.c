@@ -14,13 +14,14 @@ LIST list_newNode(int idx_vrtx_dst, int weight)    {
 }
 
 //Aggiunta di un nuovo nodo alla lista in testa e puntamento all'ultimo elemento
-void list_insertHead(LIST lista, int idx_dst, int weight) {
+LIST list_insertHead(LIST lista, int idx_dst, int weight) {
     if(lista)   {
         LIST tmp = lista->next;
         lista = list_newNode(idx_dst, weight);
         lista->next = tmp;
     } else     //nel caso di lista vuota
         lista = list_newNode(idx_dst, weight);
+    return lista;
 }
 
 
@@ -36,10 +37,10 @@ LIST list_delete(LIST L_curr) {
 
 
 //Eliminazione elemento della lista
-void list_delKey(LIST lista, int key) {
+LIST list_delKey(LIST lista, int key) {
     LIST L_curr = lista;
     LIST L_prev = NULL;
-    while(L_curr && L_curr->key != key) {   //ciclo fin quando non trovo la chiave
+    while(L_curr && L_curr->idx_vrtx_dst != key) {   //ciclo fin quando non trovo la chiave
         L_prev = L_curr;
         L_curr = L_curr->next;
     }
@@ -52,6 +53,7 @@ void list_delKey(LIST lista, int key) {
         free(L_curr);   //dealloco il nodo
     } else  
         printf("ATTENZIONE: elemento della lista non presente\n\n");
+    return lista;
 }
 
 

@@ -1,103 +1,103 @@
 #include "graph_func.h"
 
-//interfaccia utente
-int graph_func_menu(GRAPHroot grafo_root, int idx)	{
-	int choiceMenu;
-	printf("\t\t\tLibreria - Grafi - MEN\xEB PRINCIPALE\n");
-    if(grafo_root->grafo)
-        printf("\t\t\t\t\t\t\t\t\tStruttura del grafo: %s\n", graph_func_printTypeStruct(grafo_root->grafo_typeStructure);
 
-	printf("1. Genera un Grafo\n");
-	printf("2. Inserisci un nuovo vertice\n");
-    if(grafo_root->grafo) {
-        printf("3. Inserisci un nuovo arco\n"); //controllo archi disponibili (controllo vertici adiacenti)
-        printf("4. Visualizza il grafo\n");
-        printf("5. Visita il Grafo in BFS\n");
-        printf("6. Visita il Grafo in DFS\n");
-        printf("7. Cancella il grafo\n");
-        printf("8. Cancella un vertice\n");
-        printf("9. Cancella un arco\n");
-        printf("10. Calcola un grafo trasposto\n");
+void graph_func_generate(GRAPHlist grafo_list, int dup) {
+    int idx, n_elem;
+    if(grafo_list->n_vrtx != 0)	{	//se è già presente, chiedo al'utente quale operazione effettuare sul grafo
+        int choice;
+        printf("ATTENZIONE: Grafo già presente. Cosa preferisci fare?\n\t1. Generazione nuovo Grafo\t2. Inserimento nuovi vertici\n\n");
+        do  {
+            printf("SCELTA: ");
+            if((choice = io_getInteger()) < 1 || choice > 2)
+                printf("ATTENZIONE: Valore non valido\n\n");
+        }while(choice < 1 || choice > 2);
+        if(choice == 1) {
+            graph_list_deleteGraph(grafo_list);   //eliminazione completa del Grafo
+            printf("\n");
+            if(!(grafo_list->n_vrtx))
+                printf("Grafo eliminato\n\n");
+        }
     }
-    printf("\n");
-	printf("11. Esci\n");
-	printf("\n\n");
-
-	do {
-		printf("SCELTA: ");
-		if(((choiceMenu = io_getInteger()) < 1 || choiceMenu > 11) || (!grafo_root && (choiceMenu > 3 && choiceMenu < 11)))
+    
+    do  {
+        printf("Quanti elementi vuoi inserire nel Grafo? (1-%d): ", MAX_graph - grafo_list->n_vrtx);
+        if((n_elem = io_getInteger()) < 1 || n_elem > MAX_graph - grafo_list->n_vrtx)
 			printf("ATTENZIONE: Valore non valido\n\n");
-	}while((choiceMenu < 1 || choiceMenu > 11) || (!grafo_root && (choiceMenu > 3 && choiceMenu < 11)));
-	system("cls");
-	return choiceMenu;
+	}while(n_elem < 1 || n_elem > MAX_graph - grafo_list->n_vrtx);
+
+    for(idx=0;idx<n_elem;idx++)
+        graph_list_insVertex(grafo_list, idx, -1, dup));	//inserisce un vertice assegnando un altezza casuale
+    printf("\n");
+
+    graph_func_print(grafo_list);
 }
 
-
 //Inserimento di un nuovo vertice nel grafo (già esistente)
-void graph_func_insertKey(GRAPHroot grafo_root)	{
-    if(!grafo_root)    //nel caso di inserimento di un vertice in un grafo non presente
-        grafo_root = graph_new();
+void graph_func_insertKey(GRAPHlist grafo_list, int dup)	{
+    graph_func_print(grafo_list);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
 
-    graph_func_print(grafo_root);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
+	if(grafo_list->n_vertex < MAX_graph) { //controllo il numero di vertici per aggiungerne nuovi
+        printf("DEBUG: n_vertex: %d - MAX_graph: %d\n", grafo_list->n_vertex, MAX_graph);
+		int height;
+        
+        do  {
+            printf("Quale altezza vuoi applicare al vertice? (0-%d) ", MAX_graph-1);
+            if((height = io_getInteger()) < 0 || height > MAX_graph-1)
+                printf("ATTENZIONE: Valore non valido\n\n");
+            else if(!dup && grafo_list->heights[height])    //se il Grafo non può avere due incroci posti alla stessa altezza
+                printf("ATTENZIONE: altezza già presente nel grafo\n\n");
+        }while((height < 0 || height > MAX_graph) || (!dup && grafo_list->heights[height]));
 
-	if(grafo_root->n_vertex < MAX_graph) { //controllo il numero di vertici per aggiungerne nuovi
-        printf("DEBUG: n_vertex: %d - MAX_graph: %d\n", grafo_root->n_vertex, MAX_graph);
-		int key;
-        //
-        //
-        //(grafo_root->n_vertex)++;
+        graph_list_insVertex(grafo_list, -1, height, dup)      //se il peso è = 0, trattasi di inserimento manuale e non generazione randomica
+
         printf("\tGrafo aggiornato\n");
-        graph_func_print(grafo_root);			//stampa dell'grafo aggiornato
-	}
-	else	//in caso di raggiungimento della capacità massima
-		printf("ATTENZIONE: Capacità massima del grafo raggiunta\n");
+        graph_func_print(grafo_list);			//stampa dell'grafo aggiornato
+	} else	//in caso di raggiungimento della capacità massima
+		printf("ATTENZIONE: Capacità massima del Grafo raggiunta\n");
 }
 
 
 //Inserimento di un nuovo arco
-void graph_func_insertEdge(GRAPHroot grafo_root)	{
-	graph_func_print(grafo_root);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
-	if(grafo_root->n_vertex > 1) {
-        graph_insArc(grafo_root->G, graph_func_choiceVrtx(grafo_root->G, "sorgente"), 0, 0, grafo_root->fnTypeData->Print, (grafo_root->n_vertex)-1);		//inserimento nella Grafo  all'interno della specifica struttura dati, con ritorno del nuovo n_vertex
+void graph_func_insertEdge(GRAPHlist grafo_list)	{
+	graph_func_print(grafo_list);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
+	if(grafo_list->n_vertex > 1) {
+        graph_list_insArc(grafo_list, graph_func_choiceVrtx(grafo_list, "sorgente"), -1, 0);     //3° param = -1: destinazione da scegliere; 4° param = 0: peso da scegliere
     } else
         printf("ATTENZIONE: nel grafo scelto è presente un solo vertice\n");
 }
 
 
 //Visualizzazione percorso minimo fra due vertici dati in BFS
-void graph_func_BFS(GRAPHroot grafo_root)   {
-    graph_func_print(grafo_root);
+void graph_func_BFS(GRAPHlist grafo_list)   {
+    graph_func_print(grafo_list);
 
-    if(grafo_root->n_vertex > 1) {
-        graph_path(grafo_root->G, graph_func_choiceVrtx(grafo_root->G, "sorgente"), graph_func_choiceVrtx(grafo_root->G, "di destinazione"), grafo_root->fnTypeData->Print);		//inserimento nella Grafo  all'interno della specifica struttura dati, con ritorno del nuovo n_vertex
+    if(grafo_list->n_vertex > 1) {
+        graph_list_path(grafo_list, graph_func_choiceVrtx(grafo_list, "sorgente"), graph_func_choiceVrtx(grafo_list, "di destinazione"), 0);  //4° param = 0: BFS
     } else
-        printf("ATTENZIONE: nel grafo scelto (�) presente un solo vertice\n");
+        printf("ATTENZIONE: nel grafo scelto è presente un solo vertice\n");
 }
 
 //Visualizzazione del DFS
-void graph_func_DFS(GRAPHroot grafo_root)   {
-    graph_func_print(grafo_root);
+void graph_func_DFS(GRAPHlist grafo_list)   {
+    graph_func_print(grafo_list);
 
-    if(grafo_root->n_vertex > 1) {
-        graph_path(grafo_root->G, graph_func_choiceVrtx(grafo_root->G, "sorgente"), graph_func_choiceVrtx(grafo_root->G, "di destinazione"), grafo_root->fnTypeData->Print);		//inserimento nella Grafo  all'interno della specifica struttura dati, con ritorno del nuovo n_vertex
+    if(grafo_list->n_vertex > 1) {
+        graph_list_path(grafo_list, graph_func_choiceVrtx(grafo_list, "sorgente"), graph_func_choiceVrtx(grafo_list, "di destinazione"), 1);   //4° param = 1: DFS
     } else
-        printf("ATTENZIONE: nel grafo scelto (�) presente un solo vertice\n");
+        printf("ATTENZIONE: nel grafo scelto è presente un solo vertice\n");
 }
 
 
-
 //Cancellazione del grafo
-void graph_func_delete(GRAPHroot grafo_root)	{
+void graph_func_delete(GRAPHlist grafo_list)	{
     char confirm;
     do	{
-        printf("Sei sicuro di voler eliminare il grafo %d? (S/N): ", idx+1);
+        printf("Sei sicuro di voler eliminare il Grafo? (S/N): ");
         confirm = io_getChar();
         if(confirm == 's' || confirm == 'S')	{
-            if(!(grafo_root->G = graph_deleteGraph(grafo_root->G)))	{	//controllo ed eliminazione dell'grafo in caso di conferma
-                grafo_root = graph_free(grafo_root);    //rimetto a disposizione l'elemento della grafo_roota/array per la creazione della nuova Grafo
-                printf("Il grafo %d \x8A stato eliminato\n\n", idx+1);
-            } else
-                printf("ATTENZIONE: Errore durante l'eliminazione del grafo %d\n\n", idx+1);
+            graph_list_deleteGraph(grafo_list);		//controllo ed eliminazione dell'grafo in caso di conferma
+            if(!(grafo_list->n_vrtx))
+                printf("Il Grafo è stato eliminato\n\n");
         } else if(confirm != 's' && confirm != 'S' && confirm != 'n' && confirm != 'N')
             printf("ATTENZIONE: Comando non valido\n\n");
     }while(confirm != 's' && confirm != 'S' && confirm != 'n' && confirm != 'N');
@@ -105,63 +105,47 @@ void graph_func_delete(GRAPHroot grafo_root)	{
 
 
 //Cancellazione di un vertice
-void graph_func_delVertex(GRAPHroot grafo_root)	{
-    graph_func_print(grafo_root);		//stampa dell'grafo per una consultazione del vertice da eliminare
+void graph_func_delVertex(GRAPHlist grafo_list)	{
+    graph_func_print(grafo_list);		//stampa dell'grafo per una consultazione del vertice da eliminare
 
-    if(!(grafo_root->n_vertex = graph_delVertex(grafo_root->G, graph_func_choiceVrtx(grafo_root->G, "da eliminare"), grafo_root->n_vertex)))	{	//eliminazione del vertice o eliminazione del Grafo in caso di nodi cancellati
-            grafo_root = graph_free(grafo_root);     //rimetto a disposizione l'elemento della q_foresta/array per la creazione della nuova Grafo
-            printf("La Grafo %d \x8A stato eliminato\n\n", idx+1);
+    graph_list_delVertex(grafo_list, graph_func_choiceVrtx(grafo_list, "da eliminare")); 	//eliminazione del vertice o eliminazione del Grafo in caso di nodi cancellati
+    if(!(grafo_list->n_vertex))
+        printf("Il Grafo è stato eliminato\n\n");
     } else {
-        printf("\tGrafo %d di %s Aggiornato\n", idx+1, grafo_root->fnTypeData->type_name);
-        graph_func_print(grafo_root);
+        printf("\tGrafo Aggiornato\n");
+        graph_func_print(grafo_list);
     }
 }
 
 
 //Cancellazione di un arco
-void graph_func_delEdge(GRAPHroot grafo_root)	{
-    graph_func_print(grafo_root);		//stampa dell'grafo per una consultazione del vertice da eliminare
-    graph_delArc(grafo_root->G, graph_func_choiceVrtx(grafo_root->G, "sorgente"), grafo_root->fnTypeData->Print);
-    printf("\tGrafo %d di %s Aggiornato\n", idx+1, grafo_root->fnTypeData->type_name);
-    graph_func_print(grafo_root);
+void graph_func_delEdge(GRAPHlist grafo_list)	{
+    graph_func_print(grafo_list);		//stampa dell'grafo per una consultazione del vertice da eliminare
+    
+    graph_delArc(grafo_list, graph_func_choiceVrtx(grafo_list, "sorgente"));
+    printf("\tGrafo %d di %s Aggiornato\n", idx+1);
+    graph_func_print(grafo_list);
 }
-
-
-
-//Calcolo del Grafo trasposto
-void graph_func_transpose(GRAPHroot grafo_root)	{
-    printf("\tGrafo %d di %s Attuale\n", idx+1, grafo_root->fnTypeData->type_name);
-    graph_func_print(grafo_root);
-    graph_transpose(grafo_root->G);
-    printf("\tGrafo %d di %s Trasposto\n", idx+1, grafo_root->fnTypeData->type_name);
-    graph_func_print(grafo_root);
-}
-
 
 
 //FUNZIONE AUSILIARIA: Scelta del vertice disponibile del Grafo
-int graph_func_choiceVrtx(GRAPH G, char *str)  {
+int graph_func_choiceVrtx(GRAPHlist grafo_list, char *str)  {
     int idx_src;
     do  {
         printf("Scegli il vertice %s: ", str);
-        idx_src = io_getInteger();
-        if(!G[idx_src])
+        if((idx_src = io_getInteger()) < 0 || idx_src > MAX_graph-1)
+            printf("ATTENZIONE: valore non valido\n\n");
+        else if(!(grafo_list->vrtx[idx_src]))
             printf("ATTENZIONE: vertice all'indice %d non presente\n\n", idx_src);
-    }while(!G[idx_src]);
+    }while((idx_src < 0 || idx_src > MAX_graph-1) || !(grafo_list->vrtx[idx_src]));
+
     return idx_src;
 }
 
 //Stampa del grafo
-void graph_func_print(GRAPHroot grafo_root)	{
-    graph_print(grafo_root->G, grafo_root->fnTypeData->Print, grafo_root->n_vertex);
-    printf("\t\tNumero di vertici: %d\n\n", grafo_root->n_vertex);   //e contemporaneamente visualizza il contatore del numero dei vertici per la visualizzazione in output
-}
-
-//FUNZIONE AUSILIARIA: Stampa in std::out del tipo di lista
-char * graph_func_printTypeStruct(int typeStrucutre)  {
-    if(typeStructure == 1)
-        return "Matrice di Adiacenza";
-    return "Lista di Adiacenza";
+void graph_func_print(GRAPHlist grafo_list)	{
+    graph_list_print(grafo_list, 1);    //2° param = 1: mostro la Lista di Adiacenza di ogni vertice presente
+    printf("\t\tNumero di vertici: %d\n\n", grafo_list->n_vertex);   //e contemporaneamente visualizza il contatore del numero dei vertici per la visualizzazione in output
 }
 
 
