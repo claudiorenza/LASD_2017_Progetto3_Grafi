@@ -9,6 +9,94 @@ ma che non rispettano i vincoli proposti dalla traccia, sia un percorso alternat
 
 */
 
+PRED *graph_sp_BFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)   {
+    int idx;
+    PRED *sp_pred = (struct Predecessore **)calloc(grafo_list->idx_max, sizeof(struct Predecessore *));    //creo l'array degli indici dei predecessori
+
+    QUEUE coda = queue_init(grafo_list->idx_max);  //creo una coda che ha una grandezza massima del numero dei vertici del Grafo
+    LIST adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
+
+    for(idx=0;idx<grafo_list->idx_max;idx++)    {       //inizializzazione grafo
+        if(grafo_list->vrtx[idx]) {
+            sp_pred[idx] = (struct Predecessore *)malloc(sizeof(struct Predecessore));
+            sp_pred[idx]->pred = -1;
+            sp_pred[idx]->dist = INF;
+        }
+    }
+
+    sp_pred[idx_src]->pred= -1;  //che non ha predecessori
+    sp_pred[idx]->dist = 0;
+    queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
+    while(!queue_check_empty(coda))    {    //ciclo fin quando non svuoto la coda
+        idx = queue_dequeue(coda);    //estraggo la testa della Coda
+        adj_curr = grafo_list->vrtx[idx]->adj;  //prendo la Lista di Adiacenza dell'elemento appena estratto
+        while(adj_curr) {
+            if(sp_pred[adj_curr->idx_vrtx_dst]->pred != -1)  { //se non ha un predecessore
+                sp_pred[adj_curr->idx_vrtx_dst]->pred = idx;      //assegno il suo predecessore
+                sp_pred[adj_curr->idx_vrtx_dst]->dist = sp_pred[idx]->dist + adj_curr->weight;
+                queue_enqueue(coda, adj_curr->idx_vrtx_dst);   //inserisco l'indice nella coda per le future iterazioni
+            } else  {
+                if(sp_pred[idx]->dist + adj_curr->weight < sp_pred[adj_curr->idx_vrtx_dst]->dist)   {
+                    sp_pred[adj_curr->idx_vrtx_dst]->pred = idx;      //assegno il suo predecessore
+                    sp_pred[adj_curr->idx_vrtx_dst]->dist = sp_pred[idx]->dist + adj_curr->weight;
+                }
+            }
+            adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
+        }
+    }
+    free(color);
+    free(coda);
+    return sp_pred;
+
+
+}
+
+//Visita in profondità con verifica di ciclicità
+PRED *graph_sp_DFS(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
+    int idx; //intero che controlla l'effettiva presenza di un ciclo
+    PRED *sp_pred = (struct Predecessore **)calloc(grafo_list->idx_max, sizeof(struct Predecessore *));    //creo l'array degli indici dei predecessori
+
+    LIST adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
+
+    for(idx=0;idx<grafo_list->idx_max;idx++)    {       //inizializzazione grafo
+        if(grafo_list->vrtx[idx]) {
+            sp_pred[idx] = (struct Predecessore *)malloc(sizeof(struct Predecessore));
+            sp_pred[idx]->pred = -1;
+            sp_pred[idx]->dist = INF;
+        }
+    }
+
+    adj_curr = grafo_list->vrtx[idx_src]->adj;   //prendo la Lista di Adiacenza del primo elemento
+    while(adj_curr) {
+        if(sp_pred[adj_curr->idx_vrtx_dst]->pred != -1)   //se non visitato
+            graph_list_DFS_visit(grafo_list, adj_curr->idx_vrtx_dst, pred); //visito l'elemento della lista di adiacenza
+        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
+    }
+    free(color);
+    return pred;
+}
+
+//Durante la visita in profondità, posso notificare la presenza di un ciclo all'interno del grafo
+void graph_sp_DFS_visit(GRAPHlist grafo_list, int idx_curr, PRED *sp_pred)    {
+    LIST adj_curr = grafo_list->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
+
+    while(adj_curr)    {    //ciclo fin quando non svuoto la coda
+        if(sp_pred[adj_curr->idx_vrtx_dst]->pred != -1)  { //se BIANCO
+            pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
+            graph_list_DFS_visit(grafo_list, adj_curr->idx_vrtx_dst, pred);    //visito il nodo appena incontrato
+        } else  {
+            if(sp_pred[idx]->dist + adj_curr->weight < sp_pred[adj_curr->idx_vrtx_dst]->dist)   {
+                sp_pred[adj_curr->idx_vrtx_dst]->pred = idx;      //assegno il suo predecessore
+                sp_pred[adj_curr->idx_vrtx_dst]->dist = sp_pred[idx]->dist + adj_curr->weight;
+            }
+        }
+        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
+    }
+}
+
+
+
+
 
 //Semplificazione delle condizioni per l'inserimento in coda di elementi adiacenti
 //N.B.: per una migliore comprensione, invece di inserire tutte le condizioni in un unico 'if', possiamo analizzare separatamente i casi validi per l'inserimento in coda

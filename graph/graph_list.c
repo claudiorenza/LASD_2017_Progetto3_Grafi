@@ -190,7 +190,7 @@ int *graph_list_BFS(GRAPHlist grafo_list, int idx_src)  {
     LIST adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
 
     for(idx=0;idx<grafo_list->idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_list->vrtx[idx]->adj && idx != idx_src) {
+        if(grafo_list->vrtx[idx] && idx != idx_src) {
             color[idx] = 'w';
             pred[idx] = -1;
         }
@@ -198,6 +198,7 @@ int *graph_list_BFS(GRAPHlist grafo_list, int idx_src)  {
 
     color[idx_src] = 'g'; //GRIGIO sul vertice sorgente
     bfs_pred[idx_src]->pred= -1;  //che non ha predecessori
+
     queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
     while(!queue_check_empty(coda))    {    //ciclo fin quando non svuoto la coda
         idx = queue_dequeue(coda);    //estraggo la testa della Coda
@@ -219,13 +220,11 @@ int *graph_list_BFS(GRAPHlist grafo_list, int idx_src)  {
 
 
 //Visita in profondità con verifica di ciclicità
-int *graph_list_DFS(GRAPHlist grafo_list, int idx_src)  {
+int *graph_list_DFS(GRAPHlist grafo_list)  {
     int idx; //intero che controlla l'effettiva presenza di un ciclo
     int *pred = (int *)malloc(sizeof(int) * idx_max);    //per futura utitlità, dispongo anche l'array degli indici dei predecessori
 
     char *color = (char *)malloc(sizeof(char) * grafo_list->idx_max);   //creo l'array dei colori associati ai vertici, quantificati in grafo_list[0]
-
-    LISTadj adj_curr = NULL; //prendo gli elementi della lista di adiacenza del vertice estratto dalla coda
 
     for(idx=0;idx<grafo_list->idx_max;idx++)    {       //inizializzazione grafo
         if(grafo_list->vrtx[idx]->adj)
@@ -233,11 +232,9 @@ int *graph_list_DFS(GRAPHlist grafo_list, int idx_src)  {
             pred[idx] = -1;
     }
 
-    adj_curr = grafo_list->vrtx[idx_src]->adj;   //prendo la Lista di Adiacenza del primo elemento
-    while(adj_curr) {
-        if(color[adj_curr->idx_vrtx_dst] == 'w')   //se BIANCO
-            graph_list_DFS_visit(grafo_list, adj_curr->idx_vrtx_dst, pred, color); //visito l'elemento della lista di adiacenza
-        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
+    for(idx=0;idx<grafo_list->idx_max;idx++) {
+        if(grafo_list->vrtx[idx] && color[idx] == 'w')   //se esiste il vertice ed è BIANCO
+            graph_list_DFS_visit(grafo_list, idx, pred, color); //visito l'elemento della lista di adiacenza
     }
     free(color);
     return pred;
@@ -245,7 +242,7 @@ int *graph_list_DFS(GRAPHlist grafo_list, int idx_src)  {
 
 //Durante la visita in profondità, posso notificare la presenza di un ciclo all'interno del grafo
 void graph_list_DFS_visit(GRAPHlist grafo_list, int idx_curr, int *pred, char *color)    {
-    LISTadj adj_curr = grafo_list->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
+    LIST adj_curr = grafo_list->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
 
     while(adj_curr)    {    //ciclo fin quando non svuoto la coda
