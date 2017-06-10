@@ -3,13 +3,13 @@
 
 #include "graph_list.h"
 
-struct Predecessore {
-    int pred;     //indice del predecessore
+struct Successore {
+    int succ;     //indice del successore
     int dist;     //distanza calcolata dalla sorgente fino al nodo attuale
 }
-typedef struct Predecessore * PRED;
+typedef struct Successore * SUCC;
 
-int graph_sp_conditionAdj(int idx, int idx_src, int idx_dst, LIST adj_curr, PRED *path_pred)  {
+int graph_sp_conditionAdj(int idx, int idx_src, int idx_dst, LIST adj_curr, SUCC *path_SUCC)  {
 
 
 #endif // GRAPH_LIST_H_INCLUDED
