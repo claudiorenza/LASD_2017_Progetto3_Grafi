@@ -13,13 +13,13 @@ ma che non rispettano i vincoli proposti dalla traccia, sia un percorso alternat
 //Visita in profondità con verifica di ciclicità
 void *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
     int idx;
-    SUCC *sp_succ_up = (struct Successore **)calloc(grafo_lista->idx_max, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in salita
-    SUCC *sp_succ_down = (struct Successore **)calloc(grafo_lista->idx_max, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in discesa
+    SUCC *sp_succ_up = (struct Successore **)calloc((grafo_lista->idx_max)+1, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in salita
+    SUCC *sp_succ_down = (struct Successore **)calloc((grafo_lista->idx_max)+1, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in discesa
 
-    char *color = (char *)malloc(sizeof(char) * grafo_lista->idx_max);   //creo l'array dei colori associati ai vertici
+    char *color = (char *)malloc(sizeof(char) * (grafo_lista->idx_max)+1);   //creo l'array dei colori associati ai vertici
 
 
-    for(idx=0;idx<grafo_lista->idx_max;idx++)    {       //inizializzazione grafo
+    for(idx=0;idx<=grafo_lista->idx_max;idx++)    {       //inizializzazione grafo
         if(grafo_lista->vrtx[idx]) {
             color[idx] = 'w';
 

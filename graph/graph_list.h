@@ -2,6 +2,7 @@
 #define GRAPH_LIST_H_INCLUDED
 
 #define MAX_graph 256
+#define MAX_weight 20
 
 #include <stdlib.h>
 #include <math.h>
@@ -10,6 +11,7 @@
 #include "../io/io.h"
 #include "../list/list.h"
 #include "../queue/queue.h"
+
 
 
 struct GrafoVertice    {
@@ -30,8 +32,9 @@ typedef struct GrafoLista * GRAPHlist;
 
 
 GRAPHlist graph_list_init();
+void graph_list_dupEnabler(GRAPHlist grafo_lista);
 
-void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height);
+void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight);
 
 void graph_list_insArc(GRAPHlist grafo_lista, int idx_src, int idx_dst, int weight);
 
@@ -53,10 +56,11 @@ void graph_list_DFS_visit(GRAPHlist grafo_lista, int idx_curr, int *pred, char *
 
 
 void graph_list_print(GRAPHlist grafo_lista);
+int graph_list_adjVisit(LIST L_curr, GRAPHvrtx *vrtx, GRAPHvrtx *vrtx_slave);
 
-LIST *graph_list_adj_mirror(GRAPHlist grafo_lista);
-void graph_list_adj_mirrorPrint(LIST *adj_slave, int idx_max);
-void graph_list_adj_mirrorFree(LIST *adj_slave, int idx_max);
+GRAPHvrtx *graph_list_vrtx_mirror(GRAPHlist grafo_lista);
+void graph_list_vrtx_mirrorPrint(GRAPHvrtx *vrtx_slave, int idx_max);
+void graph_list_vrtx_mirrorFree(GRAPHvrtx *vrtx_slave, int idx_max);
 
 
 #endif // GRAPH_LIST_H_INCLUDED

@@ -7,7 +7,7 @@ LIST list_newNode(int idx_vrtx_dst, int weight)    {
         node->idx_vrtx_dst = idx_vrtx_dst;  //destinazione
         node->weight = weight;  //peso
         node->next = NULL;
-        printf("DEBUG newNode: dst: %d\n", node->idx_vrtx_dst);
+        printf("DEBUG newNode dst: %d\n", node->idx_vrtx_dst);
     } else
         printf("[MEM] ATTENZIONE: Problema di allocazione LIST - list_newNode. Riprovare\n");
     return node;
@@ -16,9 +16,9 @@ LIST list_newNode(int idx_vrtx_dst, int weight)    {
 //Aggiunta di un nuovo nodo alla lista in testa e puntamento all'ultimo elemento
 LIST list_insertHead(LIST lista, int idx_dst, int weight) {
     if(lista)   {
-        LIST tmp = lista->next;
-        lista = list_newNode(idx_dst, weight);
-        lista->next = tmp;
+        LIST lista_new = list_newNode(idx_dst, weight);
+        lista_new->next = lista;
+        lista = lista_new;
     } else     //nel caso di lista vuota
         lista = list_newNode(idx_dst, weight);
     return lista;
@@ -57,13 +57,11 @@ LIST list_delKey(LIST lista, int key) {
 }
 
 
-//Visita/Stampa ed eventuale confronto con Lista di Adiacenza in mirroring
-int list_visit(LIST L_curr, LIST *L_slave) {  //con L_slave ottengo l'elenco dei vertici disponibili per l'adiacenza a tempo costante
+//Visita/Stampa della lista
+int list_visit(LIST L_curr) {  //con L_slave ottengo l'elenco dei vertici disponibili per l'adiacenza a tempo costante
     int conta = 0;
     while(L_curr) {
-        printf("-> %d[%d]", L_curr->idx_vrtx_dst, L_curr->weight);
-        if(L_slave)
-            L_slave[L_curr->idx_vrtx_dst] = NULL; //tolgo il riferimento al vertice nell'array in modo da segnalare successivamente che esso sia già presente nella Lista di Adiacenza
+        printf("-> %d ", L_curr->idx_vrtx_dst);
         conta++;
         L_curr = L_curr->next;
     }

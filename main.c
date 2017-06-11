@@ -35,23 +35,12 @@ int main()  {
         do {
             printf("SCELTA: ");
             if(((choiceMenu = io_getInteger()) < 1 || choiceMenu > 11) || (!grafo_lista && (choiceMenu > 3 && choiceMenu < 11)))
-                printf("ATTENZIONE: Valore non valido\n\n");
+                printf("ATTENZIONE: valore non valido\n\n");
         }while((choiceMenu < 1 || choiceMenu > 11) || (!grafo_lista && (choiceMenu > 3 && choiceMenu < 11)));
 
 
-		if(grafo_lista->n_vrtx == 0)	{
-			char confirm;
-			do	{
-				printf("Il nuovo Grafo può contenere duplicati? (S/N): ");
-				confirm = io_getChar();
-				if(confirm == 's' || confirm == 'S')	
-					grafo_lista->dup = 1;			//imposto il flag per il possibile inserimento di altezze duplicate
-				else if(confirm == 'n' || confirm == 'N')
-					grafo_lista->dup = 0;
-				else if(confirm != 's' && confirm != 'S' && confirm != 'n' && confirm != 'N')
-					printf("ATTENZIONE: Comando non valido\n\n");
-			}while(confirm != 's' && confirm != 'S' && confirm != 'n' && confirm != 'N');
-		}
+		if(grafo_lista->n_vrtx == 0)	
+			graph_list_dupEnabler(grafo_lista);
 
 		io_clearScreen();
 		switch(choiceMenu)	{
@@ -65,10 +54,10 @@ int main()  {
 				break;
 			case 3:
 				printf("INSERIMENTO NUOVO ARCO\n\n");                
-				graph_func_insertEdge(grafo_lista);
+				graph_func_insertArc(grafo_lista);
 				break;
             case 4:
-				printf("STAMPA DEL GRAFO\n\n");
+				printf("STAMPA DEL GRAFO\n\n\tGrafo [<indice>]<altezza> (<peso>)\n");
                 graph_func_print(grafo_lista);
 				break;
 			case 5:
@@ -92,13 +81,14 @@ int main()  {
 				graph_func_delEdge(grafo_lista);
 				break;
             case 10:
-				printf("CALCOLO PERCORSO IN SALITA E DISCESA\n\n");                
+				printf("CALCOLO PERCORSO IN SALITA E DISCESA [working]\n\n");                
 				//graph_func_sp();
 				break;
 			case 11:
 				printf("\n");
 				printf("SESSIONE TERMINATA\n\n");
 		}
+		io_pressKey();
 	}while(choiceMenu != 11);
 	
 	io_clearScreen();

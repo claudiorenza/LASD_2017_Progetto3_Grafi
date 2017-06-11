@@ -11,6 +11,7 @@ struct Lista    {
 };
 typedef struct Lista * LIST;    //elemento della lista
 
+typedef struct GrafoVertice * GRAPHvrtx;
 
 LIST list_newNode(int idx_vrtx_dst, int weight);
 
@@ -20,6 +21,6 @@ LIST list_delete(LIST L_curr);
 
 LIST list_delKey(LIST lista, int key);
 
-int list_visit(LIST L_curr, LIST *L_slave);
+int list_visit(LIST L_curr);
 
 #endif // LIST_H_INCLUDED

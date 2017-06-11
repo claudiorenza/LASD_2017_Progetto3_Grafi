@@ -8,7 +8,7 @@ void graph_func_generate(GRAPHlist grafo_lista);
 
 void graph_func_insertKey(GRAPHlist grafo_lista);
 
-void graph_func_insertEdge(GRAPHlist grafo_lista);
+void graph_func_insertArc(GRAPHlist grafo_lista);
 
 void graph_func_BFS(GRAPHlist grafo_lista);
 

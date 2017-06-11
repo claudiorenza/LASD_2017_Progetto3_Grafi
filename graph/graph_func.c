@@ -1,55 +1,109 @@
 #include "graph_func.h"
 
 void graph_func_generate(GRAPHlist grafo_lista) {
-    int idx, n_elem;
+    int idx, n_elem, n_arcs, idx_arc, idx_dst;
     if(grafo_lista->n_vrtx != 0)	{	//se è già presente, chiedo al'utente quale operazione effettuare sul grafo
         int choice;
         printf("ATTENZIONE: Grafo già presente. Cosa preferisci fare?\n\t1. Generazione nuovo Grafo\t2. Inserimento nuovi vertici\n\n");
         do  {
             printf("SCELTA: ");
             if((choice = io_getInteger()) < 1 || choice > 2)
-                printf("ATTENZIONE: Valore non valido\n\n");
+                printf("ATTENZIONE: valore non valido\n\n");
         }while(choice < 1 || choice > 2);
         if(choice == 1) {
             graph_list_deleteGraph(grafo_lista);   //eliminazione completa del Grafo
             printf("\n");
-            if(!(grafo_lista->n_vrtx))
+            if(!(grafo_lista->n_vrtx))  {
                 printf("Grafo eliminato\n\n");
+                graph_list_dupEnabler(grafo_lista);
+            }
         }
     }
     
     do  {
         printf("Quanti elementi vuoi inserire nel Grafo? (1-%d): ", MAX_graph - grafo_lista->n_vrtx);
         if((n_elem = io_getInteger()) < 1 || n_elem > MAX_graph - grafo_lista->n_vrtx)
-			printf("ATTENZIONE: Valore non valido\n\n");
+			printf("ATTENZIONE: valore non valido\n\n");
 	}while(n_elem < 1 || n_elem > MAX_graph - grafo_lista->n_vrtx);
 
     for(idx=0;idx<n_elem;idx++)
-        graph_list_insVertex(grafo_lista, idx, -1);	//inserisce un vertice assegnando un altezza casuale
-    printf("\n");
+        graph_list_insVertex(grafo_lista, -1, -1, 0);	//inserisce un vertice assegnando un altezza casuale, l'indice del vertice è assegnato automaticamente
+    
+    GRAPHvrtx *vrtx_slave = NULL;
 
+    for(idx=0;idx<=grafo_lista->idx_max;idx++) {    //inserisco gli archi in maniera casuale
+    printf("\nDEBUG: inserimento archi idx: %d\n", idx);
+        if(grafo_lista->vrtx[idx])  {
+            vrtx_slave = graph_list_vrtx_mirror(grafo_lista);  //creo la Lista vrtx_slave in mirroring per indicare i vertici disponibili al collegamento
+            vrtx_slave[idx] = NULL;    //rendo non disponibile il vertice di partenza come arco da collegare
+            n_arcs = graph_list_adjVisit(grafo_lista->vrtx[idx]->adj, NULL, vrtx_slave);    //stampo e conto i vertici adiacenti, controllando la disponibilità di vertici collegabili
+            if(n_arcs < (grafo_lista->n_vrtx) - 1)  {   //se gli archi non sono collegati a tutti i nodi
+                for(idx_arc=0;idx_arc<random_num(0,2);idx_arc++)  {   //per ogni vertice posso inserire un massimo di 2 archi
+                    while(!(grafo_lista->vrtx[(idx_dst = random_num(0,grafo_lista->idx_max))]) || !vrtx_slave[idx_dst]) //cerco un vertice disponibile
+                        ;
+                    printf("DEBUG ARC to ins: idx_dst %d\n", idx_dst);
+                
+                    graph_list_insArc(grafo_lista, idx, idx_dst, random_num(1, MAX_weight)); //inserisco l'arco con un peso random
+                    vrtx_slave[idx_dst] = NULL;
+                    printf("DEBUG: idx_dst %d canc da %d", idx_dst, idx);
+                }    
+            }
+            graph_list_vrtx_mirrorFree(vrtx_slave, grafo_lista->idx_max);   //non ho più bisogno del mirroring del grafo
+            vrtx_slave = NULL;
+        }
+    }
+
+    
+    printf("\n\n");
+    printf("\tGrafo [<indice>]<altezza> (<peso>)\n");
     graph_func_print(grafo_lista);
 }
 
 //Inserimento di un nuovo vertice nel grafo (già esistente)
 void graph_func_insertKey(GRAPHlist grafo_lista)	{
+    printf("\tGrafo [<indice>]<altezza> (<peso>)\n");    
     graph_func_print(grafo_lista);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
 
-	if(grafo_lista->n_vrtx < MAX_graph) { //controllo il numero di vertici per aggiungerne nuovi
+	if(grafo_lista->n_vrtx <= MAX_graph) { //controllo il numero di vertici per aggiungerne nuovi
         printf("DEBUG: n_vertex: %d - MAX_graph: %d\n", grafo_lista->n_vrtx, MAX_graph);
-		int height;
-        
+		int height, idx_new = -1, weight = 0;
+        char confirm;
+        do	{
+            printf("Vuoi inserire manualmente l'indice al vertice da inserire? (S/N): ");
+            confirm = io_getChar();
+            if(confirm == 's' || confirm == 'S')	{
+                do  {
+                    printf("In quale indice vuoi applicare il nuovo vertice? (0-%d): ", MAX_graph-1);
+                    if((idx_new = io_getInteger()) < 0 || idx_new > MAX_graph-1)
+                        printf("ATTENZIONE: valore non valido\n\n");
+                    else if((grafo_lista->vrtx[idx_new]))    //se l'indice nel Grafo è già occupato
+                        printf("ATTENZIONE: indice già occupato nel Grafo\n\n");
+                }while((idx_new < 0 || idx_new > MAX_graph-1) || ((grafo_lista->vrtx[idx_new])));
+            } else if(confirm != 's' && confirm != 'S' && confirm != 'n' && confirm != 'N')
+                printf("ATTENZIONE: Comando non valido\n\n");
+        }while(confirm != 's' && confirm != 'S' && confirm != 'n' && confirm != 'N');
+    
         do  {
-            printf("Quale altezza vuoi applicare al vertice? (0-%d) ", MAX_graph-1);
+            printf("Quale altezza vuoi applicare al nuovo vertice? (0-%d): ", MAX_graph-1);
             if((height = io_getInteger()) < 0 || height > MAX_graph-1)
-                printf("ATTENZIONE: Valore non valido\n\n");
+                printf("ATTENZIONE: valore non valido\n\n");
             else if(!(grafo_lista->dup) && grafo_lista->heights[height])    //se il Grafo non può avere due incroci posti alla stessa altezza
                 printf("ATTENZIONE: altezza già presente nel grafo\n\n");
-        }while((height < 0 || height > MAX_graph) || (!(grafo_lista->dup) && grafo_lista->heights[height]));
+        }while((height < 0 || height > MAX_graph-1) || (!(grafo_lista->dup) && grafo_lista->heights[height]));
 
-        graph_list_insVertex(grafo_lista, -1, height);      //se il peso è = 0, trattasi di inserimento manuale e non generazione randomica
+        if(grafo_lista->dup && grafo_lista->heights[height])    {   //se posso inserire duplicati ed esiste un nodo che ha la stessa altezza
+            printf("\n");
+            printf("Altezza %d già presente\n\n", height);
+            do  {
+                printf("Quale peso vuoi inserire nell'arco? (1-%d): ", MAX_weight);
+                if((weight = io_getInteger()) < 1 || weight > MAX_weight)   //inserisco il peso dell'arco per l'adiacente al nodo posto alla stessa altezza
+                    printf("ATTENZIONE: valore non valido\n\n");
+            }while(weight < 1 || weight > MAX_weight);
+        }
 
-        printf("\tGrafo aggiornato\n");
+        graph_list_insVertex(grafo_lista, idx_new, height, weight);      //se il peso è = 0, trattasi di inserimento manuale, quindi in caso di generazione verrà assegnato un peso casuale
+
+        printf("\tGrafo Aggiornato [<indice>]<altezza> (<peso>)\n");
         graph_func_print(grafo_lista);			//stampa dell'grafo aggiornato
 	} else	//in caso di raggiungimento della capacità massima
 		printf("ATTENZIONE: Capacità massima del Grafo raggiunta\n");
@@ -57,10 +111,38 @@ void graph_func_insertKey(GRAPHlist grafo_lista)	{
 
 
 //Inserimento di un nuovo arco
-void graph_func_insertEdge(GRAPHlist grafo_lista)	{
-	graph_func_print(grafo_lista);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
+void graph_func_insertArc(GRAPHlist grafo_lista)	{
+    printf("\tGrafo [<indice>]<altezza> (<peso>)\n");	
+    graph_func_print(grafo_lista);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
 	if(grafo_lista->n_vrtx > 1) {
-        graph_list_insArc(grafo_lista, graph_func_choiceVrtx(grafo_lista, "sorgente"), -1, 0);     //3° param = -1: destinazione da scegliere; 4° param = 0: peso da scegliere
+        int idx_src;
+        int n_arcs;
+        GRAPHvrtx *vrtx_slave = graph_list_vrtx_mirror(grafo_lista);  //creo la Lista vrtx_slave in mirroring per indicare i vertici disponibili al collegamento
+        vrtx_slave[(idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente"))] = NULL;    //scelgo e rendo non disponibile il vertice di partenza come arco da collegare
+        printf("[%d]%d: ", idx_src, grafo_lista->vrtx[idx_src]->height);
+        n_arcs = graph_list_adjVisit(grafo_lista->vrtx[idx_src]->adj, grafo_lista->vrtx, vrtx_slave);    //stampo e conto i vertici adiacenti, controllando la disponibilità di vertici collegabili
+        printf("\n\n");
+        if(n_arcs < (grafo_lista->n_vrtx) - 1)  {   //se gli archi sono collegati a tutti i nodi
+            int idx_dst, weight;
+            printf("Vertici disponibili per %d:\n", idx_src);
+            graph_list_vrtx_mirrorPrint(vrtx_slave, grafo_lista->idx_max); //mostro i restanti vertici disponibili; con '0' al secondo parametro ('int showlist') non mostro le Liste di Adiacenza di questi vertici
+            do  {
+                if(!vrtx_slave[(idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione"))])
+                    printf("ATTENZIONE: arco già presente per la destinazione scelta\n\n");
+            }while(!(grafo_lista->vrtx[idx_dst]) || !vrtx_slave[idx_dst]);
+            graph_list_vrtx_mirrorFree(vrtx_slave, grafo_lista->idx_max);   //non ho più bisogno del mirroring del grafo
+            do  {
+                printf("Quale peso vuoi inserire nell'arco? (1-%d): ", MAX_weight);
+                if((weight = io_getInteger()) < 1 || weight > MAX_weight)
+                    printf("ATTENZIONE: valore non valido\n\n");
+            }while(weight < 1 || weight > MAX_weight);
+            graph_list_insArc(grafo_lista, idx_src, idx_dst, weight);     //3° param = -1: destinazione da scegliere; 4° param = 0: peso da scegliere
+            io_clearScreen();
+            printf("Arco inserito in Lista fra i vertici %d <-> %d di peso [%d]\n", idx_src, idx_dst, grafo_lista->vrtx[idx_src]->adj->weight); //accedo direttamente al peso dell'elemento in testa appena inserito
+            printf("\tGrafo Aggiornato [<indice>]<altezza> (<peso>)\n");
+            graph_func_print(grafo_lista);			//stampa dell'grafo aggiornato        
+        } else  
+            printf("ATTENZIONE: tutti gli archi uscenti sono già collegati con tutti gli altri vertici\n\n");   
     } else
         printf("ATTENZIONE: nel grafo scelto è presente un solo vertice\n");
 }
@@ -68,6 +150,7 @@ void graph_func_insertEdge(GRAPHlist grafo_lista)	{
 
 //Visualizzazione percorso minimo fra due vertici dati in BFS
 void graph_func_BFS(GRAPHlist grafo_lista)   {
+    printf("\tGrafo [<indice>]<altezza> (<peso>)\n");    
     graph_func_print(grafo_lista);
 
     if(grafo_lista->n_vrtx > 1) {
@@ -78,6 +161,7 @@ void graph_func_BFS(GRAPHlist grafo_lista)   {
 
 //Visualizzazione del DFS
 void graph_func_DFS(GRAPHlist grafo_lista)   {
+    printf("\tGrafo [<indice>]<altezza> (<peso>)\n");        
     graph_func_print(grafo_lista);
 
     if(grafo_lista->n_vrtx > 1) {
@@ -105,13 +189,15 @@ void graph_func_delete(GRAPHlist grafo_lista)	{
 
 //Cancellazione di un vertice
 void graph_func_delVertex(GRAPHlist grafo_lista)	{
+    printf("\tGrafo [<indice>]<altezza> (<peso>)\n");        
     graph_func_print(grafo_lista);		//stampa dell'grafo per una consultazione del vertice da eliminare
 
     graph_list_delVertex(grafo_lista, graph_func_choiceVrtx(grafo_lista, "da eliminare")); 	//eliminazione del vertice o eliminazione del Grafo in caso di nodi cancellati
     if(!(grafo_lista->n_vrtx))
         printf("Il Grafo è stato eliminato\n\n");
     else {
-        printf("\tGrafo Aggiornato\n");
+        printf("\n\n");
+        printf("\tGrafo Aggiornato [<indice>]<altezza> (<peso>)\n");
         graph_func_print(grafo_lista);
     }
 }
@@ -119,10 +205,12 @@ void graph_func_delVertex(GRAPHlist grafo_lista)	{
 
 //Cancellazione di un arco
 void graph_func_delEdge(GRAPHlist grafo_lista)	{
+    printf("\tGrafo [<indice>]<altezza> (<peso>)\n");        
     graph_func_print(grafo_lista);		//stampa dell'grafo per una consultazione del vertice da eliminare
     
     graph_list_delArc(grafo_lista, graph_func_choiceVrtx(grafo_lista, "sorgente"));
-    printf("\tGrafo Aggiornato\n");
+    printf("\n\n");
+    printf("\tGrafo Aggiornato [<indice>]<altezza> (<peso>)\n");
     graph_func_print(grafo_lista);
 }
 
