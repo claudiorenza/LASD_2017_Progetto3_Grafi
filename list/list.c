@@ -3,7 +3,7 @@
 //Nuovo nodo della lista
 LIST list_newNode(int idx_vrtx_dst, int weight)    {
     LIST node = NULL;
-    if(node = (struct Lista *)malloc(sizeof(struct Lista))) {
+    if((node = (struct Lista *)malloc(sizeof(struct Lista)))) {
         node->idx_vrtx_dst = idx_vrtx_dst;  //destinazione
         node->weight = weight;  //peso
         node->next = NULL;

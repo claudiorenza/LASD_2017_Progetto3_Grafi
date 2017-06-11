@@ -11,16 +11,16 @@ ma che non rispettano i vincoli proposti dalla traccia, sia un percorso alternat
 
 
 //Visita in profondità con verifica di ciclicità
-void *graph_sp_DFS(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
+void *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
     int idx;
-    SUCC *sp_succ_up = (struct Successore **)calloc(grafo_list->idx_max, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in salita
-    SUCC *sp_succ_down = (struct Successore **)calloc(grafo_list->idx_max, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in discesa
+    SUCC *sp_succ_up = (struct Successore **)calloc(grafo_lista->idx_max, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in salita
+    SUCC *sp_succ_down = (struct Successore **)calloc(grafo_lista->idx_max, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in discesa
 
-    char *color = (char *)malloc(sizeof(char) * grafo_list->idx_max);   //creo l'array dei colori associati ai vertici
+    char *color = (char *)malloc(sizeof(char) * grafo_lista->idx_max);   //creo l'array dei colori associati ai vertici
 
 
-    for(idx=0;idx<grafo_list->idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_list->vrtx[idx]) {
+    for(idx=0;idx<grafo_lista->idx_max;idx++)    {       //inizializzazione grafo
+        if(grafo_lista->vrtx[idx]) {
             color[idx] = 'w';
 
             sp_succ_up[idx] = (struct Successore *)malloc(sizeof(struct Successore));
@@ -33,22 +33,22 @@ void *graph_sp_DFS(GRAPHlist grafo_list, int idx_src, int idx_dst)  {
         }
     }
 
-    adj_curr = grafo_list->vrtx[idx_src]->adj;   //prendo la Lista di Adiacenza del primo elemento
-    graph_list_DFS_visit(grafo_list, idx_src, idx_dst, color); //visito l'elemento della lista di adiacenza
+    adj_curr = grafo_lista->vrtx[idx_src]->adj;   //prendo la Lista di Adiacenza del primo elemento
+    graph_list_DFS_visit(grafo_lista, idx_src, idx_dst, color); //visito l'elemento della lista di adiacenza
     free(color);
 
     graph_sp_printPath;
 }
 
 //Durante la visita in profondità, cerco se nell'albero di copertura dalla sorgente esiste un percorso che raggiunge la destinazione
-int graph_sp_DFS_visit(GRAPHlist grafo_list, int idx_curr, int idx_dst, char *color)    {
-    LIST adj_curr = grafo_list->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
+int graph_sp_DFS_visit(GRAPHlist grafo_lista, int idx_curr, int idx_dst, char *color)    {
+    LIST adj_curr = grafo_lista->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
 
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
     if(idx_curr != idx_dst) {
         while(adj_curr)    {    //ciclo fin quando non svuoto la coda
             if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
-                ret = graph_list_DFS_visit(grafo_list, adj_curr->idx_vrtx_dst, pred, color);    //visito il nodo appena incontrato
+                ret = graph_list_DFS_visit(grafo_lista, adj_curr->idx_vrtx_dst, pred, color);    //visito il nodo appena incontrato
             }
             adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
         }
@@ -59,7 +59,7 @@ int graph_sp_DFS_visit(GRAPHlist grafo_list, int idx_curr, int idx_dst, char *co
     while(adj_curr)    {    //ciclo fin quando non svuoto la lista di adiacenza
         if(sp_succ[adj_curr->idx_vrtx_dst] != -1)  { //se BIANCO
             SUCC[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come Successore di questo nodo adiacente
-            graph_list_DFS_visit(grafo_list, adj_curr->idx_vrtx_dst, SUCC);    //visito il nodo appena incontrato
+            graph_list_DFS_visit(grafo_lista, adj_curr->idx_vrtx_dst, SUCC);    //visito il nodo appena incontrato
         } else  {
             if(sp_succ[idx]->dist + adj_curr->weight < sp_succ[adj_curr->idx_vrtx_dst]->dist)   {
                 sp_succ[adj_curr->idx_vrtx_dst]->SUCC = idx;      //assegno il suo Successore

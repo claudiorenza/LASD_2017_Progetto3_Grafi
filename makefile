@@ -10,24 +10,32 @@ RM      = rm -rf
 SRC_IO = io/random.c \
 	io/io.c
 
-SRC_T = tree/treeABR.c \
-	tree/treeABR_func.c
+SRC_G = graph/graph_list.c \
+	graph/graph_func.c
 
-SRC = $(SRC_IO) $(SRC_T)
+SRC_L = list/list.c
+
+SRC_Q = queue/queue.c 
+
+SRC = $(SRC_IO) $(SRC_L) $(SRC_Q) $(SRC_G)
 
 
 OBJ_IO = $(SRC_IO:.c=.o)
 
-OBJ_T = $(SRC_T:.c=.o)
+OBJ_L = $(SRC_L:.c=.o)
+
+OBJ_Q = $(SRC_Q:.c=.o)
+
+OBJ_G = $(SRC_G:.c=.o)
 
 OBJ = $(SRC:.c=.o)
 
 default: all
 
 all: $(OBJ)
-	$(CC) $(CCFLAGS) $(SRC) -o treeLib main.c
+	$(CC) $(CCFLAGS) $(SRC) -o graphLib main.c
 	@echo "Build complete"
 
 clean:
-	$(RM) *.dSYM tree/*.o io/*.o *.o treeLib
+	$(RM) *.dSYM graph/*.o io/*.o list/*.o queue/*.o *.o graphLib
 	@echo "Clean complete"

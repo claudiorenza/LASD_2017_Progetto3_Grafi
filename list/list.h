@@ -1,6 +1,8 @@
 #ifndef LIST_H_INCLUDED
 #define LIST_H_INCLUDED
 
+#include <stdio.h>
+#include <stdlib.h>
 
 struct Lista    {
     int idx_vrtx_dst;
@@ -12,7 +14,9 @@ typedef struct Lista * LIST;    //elemento della lista
 
 LIST list_newNode(int idx_vrtx_dst, int weight);
 
-LIST list_insertHead(LIST lista, int key);
+LIST list_insertHead(LIST lista, int idx_dst, int key);
+
+LIST list_delete(LIST L_curr);
 
 LIST list_delKey(LIST lista, int key);
 
