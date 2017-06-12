@@ -3,6 +3,7 @@
 
 #include "../io/io.h"
 #include "graph_list.h"
+#include "graph_sp.h"
 
 void graph_func_generate(GRAPHlist grafo_lista);
 

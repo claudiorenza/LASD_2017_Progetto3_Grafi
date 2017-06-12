@@ -129,6 +129,7 @@ void graph_list_delArc(GRAPHlist grafo_lista, int idx_src) {
         graph_list_adjVisit(grafo_lista->vrtx[idx_src]->adj, grafo_lista->vrtx, vrtx_slave);    //stampo e conto i vertici adiacenti, controllando la disponibilità di vertici collegabili
         printf("\n\n");
         do  {
+            printf("Quale indice dell'arco uscente vuoi eliminare dal vertice %d? ", idx_src);   
             if(!(grafo_lista->vrtx[(idx_del = io_getInteger())]))
                 printf("ATTENZIONE: vertice di destinazione NON presente\n\n");                
             else if(vrtx_slave[idx_del])    //in tal caso vrtx_slave ha tutti gli archi uscenti mancanti
@@ -251,7 +252,7 @@ void graph_list_print(GRAPHlist grafo_lista)   {
             printf("[%d]%d: ", idx, grafo_lista->vrtx[idx]->height);    //stampo l'indice del vertice e l'altezza associata
             graph_list_adjVisit(grafo_lista->vrtx[idx]->adj, grafo_lista->vrtx, NULL); //passo la lista di adiacenza del vertice attuale
             printf("\n");
-        }
+        } 
     }
 }
 

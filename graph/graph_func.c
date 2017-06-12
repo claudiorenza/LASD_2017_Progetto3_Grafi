@@ -232,11 +232,10 @@ void graph_func_print(GRAPHlist grafo_lista)	{
 
 //Visita in DFS con applicazione dei vincoli
 void graph_func_sp(GRAPHlist grafo_lista)    {
-    /*int *pred = graph_sp_DFS(grafo_lista, graph_func_choiceVrtx(GRAPHlist grafo_lista, "sorgente"), graph_func_choiceVrtx(GRAPHlist grafo_lista, "destinazione"));
+    int idx_src, idx_dst;
+    int *pred = graph_sp_DFS(grafo_lista, (idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente")), (idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione")));
     if(pred[idx_dst])   {   //se è stato visitato il nodo di destinazione partendo dalla sorgente, allora esiste un percorso applicato ai vincoli
-        
-
+        graph_sp_calculate(grafo_lista, pred, idx_src, idx_dst); //calcolo e stampa del percorso
     } else
         printf("ATTENZIONE: Non esiste alcun percorso tra %d e %d che soddisfi i requisiti\n\n", idx_src, idx_dst);
-    */
 }

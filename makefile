@@ -11,7 +11,8 @@ SRC_IO = io/random.c \
 	io/io.c
 
 SRC_G = graph/graph_list.c \
-	graph/graph_func.c
+	graph/graph_func.c \
+	graph/graph_sp.c
 
 SRC_L = list/list.c
 

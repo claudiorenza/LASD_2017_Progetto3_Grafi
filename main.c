@@ -82,7 +82,7 @@ int main()  {
 				break;
             case 10:
 				printf("CALCOLO PERCORSO IN SALITA E DISCESA [working]\n\n");                
-				//graph_func_sp();
+				graph_func_sp(grafo_lista);
 				break;
 			case 11:
 				printf("\n");
