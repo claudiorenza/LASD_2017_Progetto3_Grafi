@@ -9,7 +9,7 @@ struct Successore {
 }
 typedef struct Successore * SUCC;
 
-int graph_sp_conditionAdj(int idx, int idx_src, int idx_dst, LIST adj_curr, SUCC *path_SUCC)  {
+int graph_sp_conditionElev(int idx, int idx_src, int idx_dst, LIST adj_curr, SUCC *path_SUCC)  {
 
 
 #endif // GRAPH_LIST_H_INCLUDED

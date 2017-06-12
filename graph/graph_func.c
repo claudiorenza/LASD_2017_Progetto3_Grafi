@@ -88,14 +88,14 @@ void graph_func_insertKey(GRAPHlist grafo_lista)	{
             if((height = io_getInteger()) < 0 || height > MAX_graph-1)
                 printf("ATTENZIONE: valore non valido\n\n");
             else if(!(grafo_lista->dup) && grafo_lista->heights[height])    //se il Grafo non può avere due incroci posti alla stessa altezza
-                printf("ATTENZIONE: altezza già presente nel grafo\n\n");
+                printf("ATTENZIONE: altezza già presente nel Grafo\n\n");
         }while((height < 0 || height > MAX_graph-1) || (!(grafo_lista->dup) && grafo_lista->heights[height]));
 
         if(grafo_lista->dup && grafo_lista->heights[height])    {   //se posso inserire duplicati ed esiste un nodo che ha la stessa altezza
             printf("\n");
-            printf("Altezza %d già presente\n\n", height);
+            printf("Altezza %d già presente in indice [%d]\n\n", height, grafo_lista->heights[height]->idx_vrtx_dst);
             do  {
-                printf("Quale peso vuoi inserire nell'arco? (1-%d): ", MAX_weight);
+                printf("Quale peso vuoi inserire nell'arco che parte da [%d]? (1-%d): ", grafo_lista->heights[height]->idx_vrtx_dst, MAX_weight);
                 if((weight = io_getInteger()) < 1 || weight > MAX_weight)   //inserisco il peso dell'arco per l'adiacente al nodo posto alla stessa altezza
                     printf("ATTENZIONE: valore non valido\n\n");
             }while(weight < 1 || weight > MAX_weight);
@@ -235,9 +235,14 @@ void graph_func_print(GRAPHlist grafo_lista)	{
     printf("\t\tNumero di vertici: %d\n\n", grafo_lista->n_vrtx);   //e contemporaneamente visualizza il contatore del numero dei vertici per la visualizzazione in output
 }
 
-
+/*Visita in DFS con applicazione dei vincoli
 void graph_func_sp(GRAPHlist grafo_lista)    {
+    int *pred = graph_sp_DFS(GRAPHlist grafo_lista, graph_func_choiceVrtx(GRAPHlist grafo_lista, "sorgente"), graph_func_choiceVrtx(GRAPHlist grafo_lista, "destinazione"));
+    if(pred[idx_dst])   {   //se è stato visitato il nodo di destinazione, quindi esiste un percorso applicato ai vincoli
 
 
+    } else
+        printf("ATTENZIONE: Non esiste alcun percorso tra %d e %d che soddisfi i requisiti\n\n", idx_src, idx_dst);
 
 }
+*/

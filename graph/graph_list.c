@@ -213,10 +213,10 @@ int *graph_list_BFS(GRAPHlist grafo_lista, int idx_src)  {
 }
 
 
-//Visita in profondità con verifica di ciclicità
+//Visita in profondità
 int *graph_list_DFS(GRAPHlist grafo_lista, int idx_src)  {
-    int idx; //intero che controlla l'effettiva presenza di un ciclo
-    int *pred = (int *)malloc(sizeof(int) * (grafo_lista->idx_max)+1);    //per futura utitlità, dispongo anche l'array degli indici dei predecessori
+    int idx;
+    int *pred = (int *)malloc(sizeof(int) * (grafo_lista->idx_max)+1);    //l'array degli indici dei predecessori
 
     char *color = (char *)malloc(sizeof(char) * (grafo_lista->idx_max)+1);   //creo l'array dei colori associati ai vertici, quantificati in grafo_lista[0]
 
