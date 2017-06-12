@@ -7,7 +7,6 @@ LIST list_newNode(int idx_vrtx_dst, int weight)    {
         node->idx_vrtx_dst = idx_vrtx_dst;  //destinazione
         node->weight = weight;  //peso
         node->next = NULL;
-        printf("DEBUG newNode dst: %d\n", node->idx_vrtx_dst);
     } else
         printf("[MEM] ATTENZIONE: Problema di allocazione LIST - list_newNode. Riprovare\n");
     return node;

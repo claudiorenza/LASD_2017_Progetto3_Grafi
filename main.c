@@ -39,7 +39,7 @@ int main()  {
         }while((choiceMenu < 1 || choiceMenu > 11) || (!grafo_lista && (choiceMenu > 3 && choiceMenu < 11)));
 
 
-		if(grafo_lista->n_vrtx == 0)	
+		if(grafo_lista->n_vrtx == 0 && choiceMenu != 11)	
 			graph_list_dupEnabler(grafo_lista);
 
 		io_clearScreen();

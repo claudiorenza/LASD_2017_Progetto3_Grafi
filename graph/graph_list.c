@@ -43,7 +43,6 @@ void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight
             idx++;
         }while(idx<=grafo_lista->idx_max && grafo_lista->vrtx[idx]);  //cerco il primo vertice disponibile 
     }
-    printf("DEBUG insVertex: %d\n", idx);
     if(idx > grafo_lista->idx_max)    //se ho superato il margine massimo, aggiorno il suo contatore
         grafo_lista->idx_max = idx; 
     if((grafo_lista->vrtx[idx] = (struct GrafoVertice *)malloc(sizeof(struct GrafoVertice))))  {  //assegno un puntatore al vertice
@@ -60,11 +59,9 @@ void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight
         if(grafo_lista->dup && grafo_lista->heights[height])  {    //se è possibile inserire duplicati ed esiste già un nodo che ha la stessa altezza...
             if(weight == 0) //se non ho impostato un peso per l'inserimento di un singolo vertice con altezza già presente
                 weight = random_num(1, MAX_weight);  //applicherò un peso casuale all'arco adiacente della stessa altezza
-            printf("DEBUG: inserimento arco peso %d\n", weight);
             graph_list_insArc(grafo_lista, idx, grafo_lista->heights[height]->idx_vrtx_dst, weight);   //...applico subito questo nuovo nodo all'adiacente del vertice posto alla stessa altezza
                 //IMPORTANTE: scegliere dalla lista delle altezze una delle sue destinazioni in maniera casuale e non al primo nodo presente in lista                    
         }
-        printf("DEBUG: inserimento lista delle altezze di %d\n", height);
         grafo_lista->heights[height] = list_insertHead(grafo_lista->heights[height], idx, -1);  //inserisco un elemento nella lista delle altezze con l'identificativo del nodo associato             
         grafo_lista->vrtx[idx]->height = height;        //assegno l'altezza al vertice creato        
         
@@ -79,9 +76,7 @@ void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight
 
 //Inserimento di un nuovo arco per un grafo non orientato con controllo dei vertici disponibili
 void graph_list_insArc(GRAPHlist grafo_lista, int idx_src, int idx_dst, int weight) {
-    printf("DEBUG ARC: src %d - dst %d\n", idx_src, idx_dst);
     grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, idx_dst, weight); //inserimento in testo nella Lista di Adiacenza di idx_src
-    printf("DEBUG ARC: src %d - dst %d\n", idx_dst, idx_src);    
     grafo_lista->vrtx[idx_dst]->adj = list_insertHead(grafo_lista->vrtx[idx_dst]->adj, idx_src, weight); //inserimento in testo nella Lista di Adiacenza di idx_dst (grafo non orientato)    
 }
 
@@ -134,7 +129,6 @@ void graph_list_delArc(GRAPHlist grafo_lista, int idx_src) {
         graph_list_adjVisit(grafo_lista->vrtx[idx_src]->adj, grafo_lista->vrtx, vrtx_slave);    //stampo e conto i vertici adiacenti, controllando la disponibilità di vertici collegabili
         printf("\n\n");
         do  {
-            printf("Quale indice dell'arco uscente vuoi eliminare dal vertice %d? ", idx_src);    //attualmente in uso come DEBUG per controllare se l'indice del vettore coincide con l'indice del dato interno
             if(!(grafo_lista->vrtx[(idx_del = io_getInteger())]))
                 printf("ATTENZIONE: vertice di destinazione NON presente\n\n");                
             else if(vrtx_slave[idx_del])    //in tal caso vrtx_slave ha tutti gli archi uscenti mancanti
@@ -194,7 +188,7 @@ int *graph_list_BFS(GRAPHlist grafo_lista, int idx_src)  {
     pred[idx_src] = -1;  //che non ha predecessori
 
     queue_enqueue(coda, idx_src);   //inserisco in coda la sorgente
-    while(!queue_isEmpty(coda))    {    //ciclo fin quando non svuoto la coda
+    while(!queue_isEmpty(coda))    {    //ciclo fin quando non svuoto la Lista
         idx = queue_dequeue(coda);    //estraggo la testa della Coda
         adj_curr = grafo_lista->vrtx[idx]->adj;  //prendo la Lista di Adiacenza dell'elemento appena estratto
         while(adj_curr) {
@@ -221,7 +215,7 @@ int *graph_list_DFS(GRAPHlist grafo_lista, int idx_src)  {
     char *color = (char *)malloc(sizeof(char) * (grafo_lista->idx_max)+1);   //creo l'array dei colori associati ai vertici, quantificati in grafo_lista[0]
 
     for(idx=0;idx<=grafo_lista->idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_lista->vrtx[idx]->adj)
+        if(grafo_lista->vrtx[idx])
             color[idx] = 'w';
             pred[idx] = -1;
     }
@@ -239,7 +233,7 @@ void graph_list_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int *pred, char *color)
     LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
 
-    while(adj_curr)    {    //ciclo fin quando non svuoto la coda
+    while(adj_curr)    {    //ciclo fin quando non svuoto la Lista
         if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
             pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
             graph_list_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, pred, color);    //visito il nodo appena incontrato
@@ -257,8 +251,7 @@ void graph_list_print(GRAPHlist grafo_lista)   {
             printf("[%d]%d: ", idx, grafo_lista->vrtx[idx]->height);    //stampo l'indice del vertice e l'altezza associata
             graph_list_adjVisit(grafo_lista->vrtx[idx]->adj, grafo_lista->vrtx, NULL); //passo la lista di adiacenza del vertice attuale
             printf("\n");
-        } else
-            printf("DEBUG: %d non pervenuto\n", idx);
+        }
     }
 }
 

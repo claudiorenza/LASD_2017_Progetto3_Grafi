@@ -32,7 +32,6 @@ void graph_func_generate(GRAPHlist grafo_lista) {
     GRAPHvrtx *vrtx_slave = NULL;
 
     for(idx=0;idx<=grafo_lista->idx_max;idx++) {    //inserisco gli archi in maniera casuale
-    printf("\nDEBUG: inserimento archi idx: %d\n", idx);
         if(grafo_lista->vrtx[idx])  {
             vrtx_slave = graph_list_vrtx_mirror(grafo_lista);  //creo la Lista vrtx_slave in mirroring per indicare i vertici disponibili al collegamento
             vrtx_slave[idx] = NULL;    //rendo non disponibile il vertice di partenza come arco da collegare
@@ -41,11 +40,8 @@ void graph_func_generate(GRAPHlist grafo_lista) {
                 for(idx_arc=0;idx_arc<random_num(0,2);idx_arc++)  {   //per ogni vertice posso inserire un massimo di 2 archi
                     while(!(grafo_lista->vrtx[(idx_dst = random_num(0,grafo_lista->idx_max))]) || !vrtx_slave[idx_dst]) //cerco un vertice disponibile
                         ;
-                    printf("DEBUG ARC to ins: idx_dst %d\n", idx_dst);
-                
                     graph_list_insArc(grafo_lista, idx, idx_dst, random_num(1, MAX_weight)); //inserisco l'arco con un peso random
                     vrtx_slave[idx_dst] = NULL;
-                    printf("DEBUG: idx_dst %d canc da %d", idx_dst, idx);
                 }    
             }
             graph_list_vrtx_mirrorFree(vrtx_slave, grafo_lista->idx_max);   //non ho più bisogno del mirroring del grafo
@@ -65,8 +61,7 @@ void graph_func_insertKey(GRAPHlist grafo_lista)	{
     graph_func_print(grafo_lista);	//stampa dei nodi e degli archi adiacenti per il tipo di struttura associata
 
 	if(grafo_lista->n_vrtx <= MAX_graph) { //controllo il numero di vertici per aggiungerne nuovi
-        printf("DEBUG: n_vertex: %d - MAX_graph: %d\n", grafo_lista->n_vrtx, MAX_graph);
-		int height, idx_new = -1, weight = 0;
+        int height, idx_new = -1, weight = 0;
         char confirm;
         do	{
             printf("Vuoi inserire manualmente l'indice al vertice da inserire? (S/N): ");
@@ -235,14 +230,13 @@ void graph_func_print(GRAPHlist grafo_lista)	{
     printf("\t\tNumero di vertici: %d\n\n", grafo_lista->n_vrtx);   //e contemporaneamente visualizza il contatore del numero dei vertici per la visualizzazione in output
 }
 
-/*Visita in DFS con applicazione dei vincoli
+//Visita in DFS con applicazione dei vincoli
 void graph_func_sp(GRAPHlist grafo_lista)    {
-    int *pred = graph_sp_DFS(GRAPHlist grafo_lista, graph_func_choiceVrtx(GRAPHlist grafo_lista, "sorgente"), graph_func_choiceVrtx(GRAPHlist grafo_lista, "destinazione"));
-    if(pred[idx_dst])   {   //se è stato visitato il nodo di destinazione, quindi esiste un percorso applicato ai vincoli
-
+    int *pred = graph_sp_DFS(grafo_lista, graph_func_choiceVrtx(GRAPHlist grafo_lista, "sorgente"), graph_func_choiceVrtx(GRAPHlist grafo_lista, "destinazione"));
+    if(pred[idx_dst])   {   //se è stato visitato il nodo di destinazione partendo dalla sorgente, allora esiste un percorso applicato ai vincoli
+        
 
     } else
         printf("ATTENZIONE: Non esiste alcun percorso tra %d e %d che soddisfi i requisiti\n\n", idx_src, idx_dst);
 
 }
-*/
