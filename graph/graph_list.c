@@ -43,8 +43,9 @@ void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight
             idx++;
         }while(idx<=grafo_lista->idx_max && grafo_lista->vrtx[idx]);  //cerco il primo vertice disponibile 
     }
-    if(idx > grafo_lista->idx_max)    //se ho superato il margine massimo, aggiorno il suo contatore
-        grafo_lista->idx_max = idx; 
+    if(idx > grafo_lista->idx_max) {   //se ho superato il margine massimo, aggiorno il suo contatore
+        grafo_lista->idx_max = idx;      
+    }
     if((grafo_lista->vrtx[idx] = (struct GrafoVertice *)malloc(sizeof(struct GrafoVertice))))  {  //assegno un puntatore al vertice
         grafo_lista->vrtx[idx]->adj = NULL;             //Lista di Adiacenza da riempire;
         
@@ -84,11 +85,13 @@ void graph_list_insArc(GRAPHlist grafo_lista, int idx_src, int idx_dst, int weig
 void graph_list_deleteGraph(GRAPHlist grafo_lista) {
     int idx;
     for(idx=0;idx<=grafo_lista->idx_max;idx++){
-        if(grafo_lista->vrtx[idx] && grafo_lista->vrtx[idx]->adj)  {
-            grafo_lista->vrtx[idx]->adj = list_delete(grafo_lista->vrtx[idx]->adj); //elimino tutta la Lista puntata ricorsivamente
+        if(grafo_lista->vrtx[idx])  {
+            if(grafo_lista->vrtx[idx]->adj)  
+                grafo_lista->vrtx[idx]->adj = list_delete(grafo_lista->vrtx[idx]->adj); //elimino tutta la Lista puntata ricorsivamente
             grafo_lista->heights[grafo_lista->vrtx[idx]->height] = list_delKey(grafo_lista->heights[grafo_lista->vrtx[idx]->height], idx); //elimino la corrispondente altezza nell'array delle altezze
-	        free(grafo_lista->vrtx[idx]);   //dealloco il puntatore del vertice
         }
+	    free(grafo_lista->vrtx[idx]);   //dealloco il puntatore del vertice
+        grafo_lista->vrtx[idx] = NULL;
     }
 	grafo_lista->n_vrtx = 0;
     grafo_lista->idx_max = 0;
@@ -159,7 +162,7 @@ void graph_list_path(GRAPHlist grafo_lista, int idx_src, int idx_dst, int mode) 
 void graph_list_path_print(GRAPHlist grafo_lista, int idx_src, int idx_dst, int *pred)  {
     if(idx_src == idx_dst)
         printf("%d ", idx_src);
-    else if(pred[idx_dst] == -1)
+    else if(pred[idx_dst] == -1)   
         printf("ATTENZIONE: non esiste alcun cammino tra la sorgente e la destinazione scelta\n\n");
     else    {
         graph_list_path_print(grafo_lista, idx_src, pred[idx_dst], pred);
@@ -221,7 +224,9 @@ int *graph_list_DFS(GRAPHlist grafo_lista, int idx_src)  {
             pred[idx] = -1;
     }
 
-    for(idx=0;idx<=grafo_lista->idx_max;idx++) {
+    graph_list_DFS_visit(grafo_lista->vrtx, idx_src, pred, color); //visito l'elemento della lista di adiacenza dalla sorgente
+
+    for(idx=0;idx<=grafo_lista->idx_max;idx++) {    //vedo i restanti alberi di copertura
         if(grafo_lista->vrtx[idx] && color[idx] == 'w')   //se esiste il vertice ed è BIANCO
             graph_list_DFS_visit(grafo_lista->vrtx, idx, pred, color); //visito l'elemento della lista di adiacenza
     }
@@ -233,7 +238,6 @@ int *graph_list_DFS(GRAPHlist grafo_lista, int idx_src)  {
 void graph_list_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int *pred, char *color)    {
     LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
-
     while(adj_curr)    {    //ciclo fin quando non svuoto la Lista
         if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
             pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente

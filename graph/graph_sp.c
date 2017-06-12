@@ -26,26 +26,30 @@ int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
 void graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, int *pred, int *dist, char *color, int isAscent)    {
     LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
-
+    printf("DEBUG: grigio [%d]\n", idx_curr);
     while(adj_curr)    {    //ciclo fin quando non svuoto la Lista
         if(graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height)) {  //se l'adiacente rispetta i vincoli richiesti
             if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
+                printf("DEBUG: bianco [%d]\n", adj_curr->idx_vrtx_dst);
                 pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
                 dist[adj_curr->idx_vrtx_dst] = dist[idx_curr] + adj_curr->weight; //sommo la distanza calcolata dal nodo corrente al successivo
-                
+                printf("DEBUG: pred[%d] = %d - dist[%d] = %d\n", adj_curr->idx_vrtx_dst, pred[adj_curr->idx_vrtx_dst], adj_curr->idx_vrtx_dst, dist[adj_curr->idx_vrtx_dst]);                
                 if(isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) //se il successore nella visita va in discesa
                     isAscent = 0; //da ora in poi valgono solo percorsi in discesa
                 graph_sp_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, dist, color, isAscent);    //visito il nodo appena incontrato
             } else if(color[adj_curr->idx_vrtx_dst] == 'b')    {    //se è NERO, quindi un nodo già visitato
+                printf("DEBUG: nero incrociato [%d]\n", adj_curr->idx_vrtx_dst);                
                 if(dist[idx_curr] + adj_curr->weight < dist[adj_curr->idx_vrtx_dst])   {  //confronto la distanza calcolata fino a quel punto più il peso dell'arco dell'adiacente già visitato
                     pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
                     //N.B.: la distanza reale del percorso verrà calcolata una volta completato il dfs, ovvero durante la stampa
                 }
             }
-        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
         }
+        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente        
     }
     color[idx_curr] = 'b';  //completo la visita del nodo in NERO
+    printf("DEBUG: nero [%d]\n", idx_curr);                
+    
 }
 
 

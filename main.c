@@ -81,7 +81,7 @@ int main()  {
 				graph_func_delEdge(grafo_lista);
 				break;
             case 10:
-				printf("CALCOLO PERCORSO IN SALITA E DISCESA [working]\n\n");                
+				printf("CALCOLO PERCORSO IN SALITA E DISCESA\n\n");                
 				graph_func_sp(grafo_lista);
 				break;
 			case 11:
