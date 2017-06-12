@@ -99,7 +99,7 @@ void graph_list_deleteGraph(GRAPHlist grafo_lista) {
     grafo_lista->idx_max = 0;
 }
 
-//Eliminazione del vertice con idx relativi archi entranti e uscenti (grafo non orientato)
+//Eliminazione del vertice con i relativi archi entranti e uscenti (grafo non orientato)
 void graph_list_delVertex(GRAPHlist grafo_lista, int idx_del)  {
     grafo_lista->vrtx[idx_del]->adj = graph_list_delVertex_undirectedArcs(grafo_lista, grafo_lista->vrtx[idx_del]->adj, idx_del);  //eliminazione degli archi entranti al vertice e la sua Lista di Adiacenza
     grafo_lista->heights[grafo_lista->vrtx[idx_del]->height] = list_delKey(grafo_lista->heights[grafo_lista->vrtx[idx_del]->height], idx_del); //elimino la corrispondente altezza nell'array delle altezze
@@ -228,21 +228,21 @@ int *graph_list_DFS(GRAPHlist grafo_lista, int idx_src)  {
 
     for(idx=0;idx<=grafo_lista->idx_max;idx++) {
         if(grafo_lista->vrtx[idx] && color[idx] == 'w')   //se esiste il vertice ed è BIANCO
-            graph_list_DFS_visit(grafo_lista, idx, pred, color); //visito l'elemento della lista di adiacenza
+            graph_list_DFS_visit(grafo_lista->vrtx, idx, pred, color); //visito l'elemento della lista di adiacenza
     }
     free(color);
     return pred;
 }
 
 //Durante la visita in profondità, posso notificare la presenza di un ciclo all'interno del grafo
-void graph_list_DFS_visit(GRAPHlist grafo_lista, int idx_curr, int *pred, char *color)    {
-    LIST adj_curr = grafo_lista->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
+void graph_list_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int *pred, char *color)    {
+    LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
 
     while(adj_curr)    {    //ciclo fin quando non svuoto la coda
         if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
             pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
-            graph_list_DFS_visit(grafo_lista, adj_curr->idx_vrtx_dst, pred, color);    //visito il nodo appena incontrato
+            graph_list_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, pred, color);    //visito il nodo appena incontrato
         }
         adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
     }

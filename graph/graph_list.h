@@ -52,7 +52,7 @@ void graph_list_path_print(GRAPHlist grafo_lista, int idx_src, int idx_dst, int 
 int *graph_list_BFS(GRAPHlist grafo_lista, int idx_src);
 
 int *graph_list_DFS(GRAPHlist grafo_lista, int idx_src);
-void graph_list_DFS_visit(GRAPHlist grafo_lista, int idx_curr, int *pred, char *color);
+void graph_list_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int *pred, char *color);
 
 
 void graph_list_print(GRAPHlist grafo_lista);

@@ -22,20 +22,20 @@ int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
             pred[idx] = -1;
     }
     //N.B.: per poter riconoscere la presenza di (almeno) un percorso che raggiunga la destinazione, non visiterò altre radici bianchi al di fuori della sorgente
-    graph_sp_DFS_visit(grafo_lista, idx_src, idx_src idx_dst, pred, color, 1); //parto solo dalla radice
+    graph_sp_DFS_visit(vrtx, idx_src, idx_src idx_dst, pred, color, 1); //parto solo dalla radice
 
     free(color);
     return pred;
 }
 
 //Durante la visita in profondità ricorsiva
-void graph_sp_DFS_visit(GRAPHlist grafo_lista, int idx_curr, int idx_src, int idx_dst int *pred, char *color, int isAscent)    {
-    LIST adj_curr = grafo_lista->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
+void graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst int *pred, char *color, int isAscent)    {
+    LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
 
     while(adj_curr)    {    //ciclo fin quando non svuoto la coda
-        if(color[adj_curr->idx_vrtx_dst] == 'w' && graph_sp_conditionElev(grafo_lista->vrtx[idx_curr]->height, grafo_lista->vrtx[adj_curr->idx_vrtx_dst]->height,
-                                                                        isAscent, grafo_lista->vrtx[idx_src]->height, *grafo_lista->vrtx[idx_dst]->height))  { //se BIANCO
+        if(color[adj_curr->idx_vrtx_dst] == 'w' && graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height,
+                                                                        isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height))  { //se BIANCO
             pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
             if(isAscent && (grafo_lista->vrtx[idx_curr]->height > grafo_lista->vrtx[adj_curr->idx_vrtx_dst]->height)) //se il successore nella visita va in discesa
                 isAscent = 0; //da ora in poi valgono solo percorsi in discesa
@@ -95,13 +95,13 @@ void *graph_sp_calculate(GRAPHlist grafo_lista, int *pred, int idx_src, int idx_
     sp_succ_up[idx_dst]->dist = 0;      //inizializzazione distanza del percorso dal nodo di destinazione
     sp_succ_down[idx_dst]->dist = 0;
 
-    graph_sp_calculate_visit(grafo_lista, pred, sp_succ_up, sp_succ_down, idx_src, idx_dst, 1); //visito l'elemento della lista di adiacenza
+    graph_sp_calculate_visit(vrtx, pred, sp_succ_up, sp_succ_down, idx_src, idx_dst, 1); //visito l'elemento della lista di adiacenza
 
-    graph_sp_printPath(grafo_lista, sp_succ_up, sp_succ_down, idx_src, idx_dst);
+    graph_sp_printPath(vrtx, sp_succ_up, sp_succ_down, idx_src, idx_dst);
 }
 
 //Durante la visita in profondità, 
-void graph_sp_calculate_visit(GRAPHvrtx *vrtx, int *pred, int idx_curr, SUCC sp_succ_up, SUCC sp_succ_down, int idx_src, int isAscent)    {
+void graph_sp_calculate_visit(GRAPHvrtx *vrtx, int *pred, int idx_curr, SUCC *sp_succ_up, SUCC *sp_succ_down, int idx_src, int isAscent)    {
     LIST adj_curr = grafo_lista->vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
  
     while(adj_curr)    {    //ciclo fin quando non svuoto la lista di adiacenza
@@ -138,6 +138,25 @@ void graph_sp_calculate_visit(GRAPHvrtx *vrtx, int *pred, int idx_curr, SUCC sp_
     }
 }
 
+void graph_sp_calculate_DFS_visit(GRAPHvrtx *vrtx, int *pred, int idx_curr, SUCC sp_succ_up, SUCC sp_succ_down, int idx_src, int idx_dst, int isAscent)   {
+    LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
+    //color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
+
+    while(adj_curr)    {    //ciclo fin quando non svuoto la coda
+        if(pred[adj_curr->idx_vrtx_dst] != -1 && graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height,
+                                                                        isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height))  { //se BIANCO
+            pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
+            if(isAscent && (grafo_lista->vrtx[idx_curr]->height > grafo_lista->vrtx[adj_curr->idx_vrtx_dst]->height)) //se il successore nella visita va in discesa
+                isAscent = 0; //da ora in poi valgono solo percorsi in discesa
+
+            graph_sp_DFS_visit(grafo_lista, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, color, isAscent);    //visito il nodo appena incontrato
+        }
+        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
+    }
+    color[idx_curr] = 'b';  //completo la visita del nodo in NERO
+
+
+}
 
 int graph_sp_conditionSucc_up(int heigth_curr, int heigth_adj, int isAscent)   {
     int ret = 0;
