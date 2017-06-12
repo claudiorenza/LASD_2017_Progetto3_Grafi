@@ -43,7 +43,7 @@ void graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst,
         }
         adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente        
     }
-    color[idx_curr] = 'b';  //completo la visita del nodo in NERO
+    color[idx_curr] = 'b';  //completo la visita del nodo in NERO    
 }
 
 
