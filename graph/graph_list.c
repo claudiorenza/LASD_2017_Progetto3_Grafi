@@ -61,7 +61,6 @@ void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight
             if(weight == 0) //se non ho impostato un peso per l'inserimento di un singolo vertice con altezza già presente
                 weight = random_num(1, MAX_weight);  //applicherò un peso casuale all'arco adiacente della stessa altezza
             graph_list_insArc(grafo_lista, idx, grafo_lista->heights[height]->idx_vrtx_dst, weight);   //...applico subito questo nuovo nodo all'adiacente del vertice posto alla stessa altezza
-                //IMPORTANTE: scegliere dalla lista delle altezze una delle sue destinazioni in maniera casuale e non al primo nodo presente in lista                    
         }
         grafo_lista->heights[height] = list_insertHead(grafo_lista->heights[height], idx, -1);  //inserisco un elemento nella lista delle altezze con l'identificativo del nodo associato             
         grafo_lista->vrtx[idx]->height = height;        //assegno l'altezza al vertice creato        
@@ -109,7 +108,7 @@ void graph_list_delVertex(GRAPHlist grafo_lista, int idx_del)  {
             grafo_lista->idx_max -= 1;   //decremento fin quando non trovo un vertice presente
         }while(grafo_lista->idx_max > 0 && !(grafo_lista->vrtx[grafo_lista->idx_max]));
     }
-    grafo_lista->n_vrtx -= 1;  //IMPORTANTE: in caso di ultimo elemento eliminato, cancellare il grafo
+    grafo_lista->n_vrtx -= 1;
 }
 
 //Eliminazione diretta di tutta la Lista di Adiacenza con gli archi entranti associati

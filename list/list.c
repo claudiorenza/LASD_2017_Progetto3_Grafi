@@ -48,7 +48,7 @@ LIST list_delKey(LIST lista, int key) {
             L_prev->next = L_curr->next; //assegno al next del nodo precedente, il nodo successivo presente nell'elemento da cancellare
         else //se si tratta invece della testa
             lista = L_curr->next; //cambio la testa di tutta la lista
-        L_curr->next = NULL;    //CHECK: vedere se ci sono problemi
+        L_curr->next = NULL;    
         free(L_curr);   //dealloco il nodo
     } else  
         printf("ATTENZIONE: elemento della lista non presente\n\n");
