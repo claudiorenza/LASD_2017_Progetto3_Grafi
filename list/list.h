@@ -23,4 +23,6 @@ LIST list_delKey(LIST lista, int key);
 
 int list_visit(LIST L_curr);
 
+int list_visit_searchIdx(LIST L_curr, int idx);
+
 #endif // LIST_H_INCLUDED

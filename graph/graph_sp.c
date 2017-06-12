@@ -4,6 +4,7 @@
 int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
     int idx;
     int *pred = (int *)malloc(sizeof(int) * (grafo_lista->idx_max)+1);    //per futura utilità, dispongo anche l'array degli indici dei predecessori
+    int *dist = (int *)malloc(sizeof(int) * (grafo_lista->idx_max)+1);    //distanza calcolata a partire dalla sorgente
 
     char *color = (char *)malloc(sizeof(char) * (grafo_lista->idx_max)+1);   //creo l'array dei colori associati ai vertici, quantificati in grafo_lista[0]
 
@@ -11,30 +12,38 @@ int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
         if(grafo_lista->vrtx[idx]->adj)
             color[idx] = 'w';
             pred[idx] = -1;
+            dist[idx] = INT_MAX;
     }
     //N.B.: per poter riconoscere la presenza di (almeno) un percorso che raggiunga la destinazione, non visiterò altre radici bianchi al di fuori della sorgente
-    graph_sp_DFS_visit(grafo_lista->vrtx, idx_src, idx_src, idx_dst, pred, color, 1); //parto solo dalla radice
+    dist[idx_src] = 0;
+    graph_sp_DFS_visit(grafo_lista->vrtx, idx_src, idx_src, idx_dst, pred, dist, color, 1); //parto solo dalla radice
 
     free(color);
     return pred;
 }
 
 //Durante la visita in profondità ricorsiva
-void graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, int *pred, char *color, int isAscent)    {
+void graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, int *pred, int *dist, char *color, int isAscent)    {
     LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
 
     while(adj_curr)    {    //ciclo fin quando non svuoto la Lista
-        if(color[adj_curr->idx_vrtx_dst] == 'w' && graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height,
-                                                                        isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height))  { //se BIANCO
-            pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
-
-            if(isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) //se il successore nella visita va in discesa
-                isAscent = 0; //da ora in poi valgono solo percorsi in discesa
-
-            graph_sp_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, color, isAscent);    //visito il nodo appena incontrato
-        }
+        if(graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height)) {  //se l'adiacente rispetta i vincoli richiesti
+            if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
+                pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
+                dist[adj_curr->idx_vrtx_dst] = dist[idx_curr] + adj_curr->weight; //sommo la distanza calcolata dal nodo corrente al successivo
+                
+                if(isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) //se il successore nella visita va in discesa
+                    isAscent = 0; //da ora in poi valgono solo percorsi in discesa
+                graph_sp_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, dist, color, isAscent);    //visito il nodo appena incontrato
+            } else if(color[adj_curr->idx_vrtx_dst] == 'b')    {    //se è NERO, quindi un nodo già visitato
+                if(dist[idx_curr] + adj_curr->weight < dist[adj_curr->idx_vrtx_dst])   {  //confronto la distanza calcolata fino a quel punto più il peso dell'arco dell'adiacente già visitato
+                    pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
+                    //N.B.: la distanza reale del percorso verrà calcolata una volta completato il dfs, ovvero durante la stampa
+                }
+            }
         adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
+        }
     }
     color[idx_curr] = 'b';  //completo la visita del nodo in NERO
 }
@@ -61,144 +70,19 @@ int graph_sp_conditionElev(int height_curr, int height_adj, int isAscent, int he
     return ret;
 }
 
-
-
-
-
-//Visita e calcolo delle distanze a ritroso, dalla destinazione
-void graph_sp_calculate(GRAPHlist grafo_lista, int *pred, int idx_src, int idx_dst)  {
-    int idx;
-    int *vrtx_visited = (int *)calloc((grafo_lista->idx_max)+1, sizeof(int)); //array dei vertici visitati con le distanze calcolate, inizializzati a 0
-    SUCC *sp_succ_up = (struct Successore **)calloc((grafo_lista->idx_max)+1, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in salita
-    SUCC *sp_succ_down = (struct Successore **)calloc((grafo_lista->idx_max)+1, sizeof(struct Successore *));    //creo l'array degli indici dei Successori per percorsi in discesa
-
-    for(idx=0;idx<=grafo_lista->idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_lista->vrtx[idx]) {
-            sp_succ_up[idx] = (struct Successore *)malloc(sizeof(struct Successore));
-            sp_succ_up[idx]->succ = -1;
-            sp_succ_up[idx]->dist = INT_MAX;
-
-            sp_succ_down[idx]  = (struct Successore *)malloc(sizeof(struct Successore));
-            sp_succ_down[idx]->succ = -1;   
-            sp_succ_down[idx]->dist = INT_MAX;
-        }
-    }
-
-    
-    sp_succ_up[idx_dst]->dist = 0;      //inizializzazione distanza del percorso dal nodo di destinazione
-    sp_succ_down[idx_dst]->dist = 0;
-
-    graph_sp_calculate_visit(grafo_lista->vrtx, pred, idx_dst, sp_succ_up, sp_succ_down, idx_src, idx_dst, 1, vrtx_visited); //visito l'elemento della lista di adiacenza, con rilevazione della salita dalla destinazione
-
-    graph_sp_printPath(grafo_lista->vrtx, sp_succ_up, sp_succ_down, idx_src, idx_dst, 1);
-}
-
-//Durante la visita in ampiezza di ogni nodo predecessore, vengono registrati i successori a salire e a scendere a partire dalla sorgente
-void graph_sp_calculate_visit(GRAPHvrtx *vrtx, int *pred, int idx_curr, SUCC *sp_succ_up, SUCC *sp_succ_down, int idx_src, int idx_dst, int isAscent, int *vrtx_visited)    {
-    LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
-    int idx_pred;   //indice del predecessore
-    printf("DEBUG: visita [%d]%d\n", idx_curr, vrtx[idx_curr]->height);
-    while(adj_curr)    {    //ciclo fin quando non svuoto la lista di adiacenza
-        printf("DEBUG: adj [%d]%d\n", adj_curr->idx_vrtx_dst, vrtx[adj_curr->idx_vrtx_dst]->height);
-        if(adj_curr->idx_vrtx_dst != pred[idx_curr])     { //se l'adiacente non è un predecessore
-            if(!vrtx_visited[adj_curr->idx_vrtx_dst] && graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, !isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height)) { //controllo se un adiacente è elegibile per la visita in profondità, escludendo vertici già calcolati
-                //N.B.: se attualmente la visita dei predecessori viene effettuata a ritroso, isAscent dovra essere l'opposto siccome questa visita verrà effettuata in avanti
-                
-                if(graph_sp_conditionSucc_high(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, !isAscent) && sp_succ_up[idx_curr]->succ != adj_curr->idx_vrtx_dst) { //se l'ADIACENTE è posto più in alto e non è associato come suo successore a salire
-                    graph_sp_calculate_DFS_visit(vrtx, pred, adj_curr->idx_vrtx_dst, sp_succ_up, sp_succ_down, idx_src, idx_dst, !isAscent, vrtx_visited); //visito in profondità i vertici che partono da questa adiacenza per vedere se esistono percorsi alternativi migliori
-                    
-                    //dopo la visita si controlla se ha trovato un percorso migliore
-                    if(sp_succ_up[idx_curr]->dist + adj_curr->weight < sp_succ_up[adj_curr->idx_vrtx_dst]->dist)    {   //con la distanza calcolata fino a quel punto più il peso dell'arco minore della distanza calcolata nell'adiacente
-                        sp_succ_up[idx_curr]->succ = adj_curr->idx_vrtx_dst;
-                        sp_succ_up[idx_curr]->dist = sp_succ_up[adj_curr->idx_vrtx_dst]->dist + adj_curr->weight;   //e aggiorno la distanza accumulata con il peso dell'arco visitato
-                    }
-                    
-                    
-                } else if(graph_sp_conditionSucc_low(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, !isAscent) && sp_succ_down[idx_curr]->succ != adj_curr->idx_vrtx_dst) { //oppure l'ADIACENTE è posto più un basso e non è associato come suo successore a scendere
-                    if(!isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) //se, continuando il percorso a ritroso ero in discesa e l'adiacente da visitare in DFS è in discesa
-                        graph_sp_calculate_DFS_visit(vrtx, pred, adj_curr->idx_vrtx_dst, sp_succ_up, sp_succ_down, idx_src, idx_dst, isAscent, vrtx_visited); //visito in profondità i vertici che partono da questa adiacenza per vedere se esistono percorsi alternativi migliori
-                    else
-                        graph_sp_calculate_DFS_visit(vrtx, pred, adj_curr->idx_vrtx_dst, sp_succ_up, sp_succ_down, idx_src, idx_dst, !isAscent, vrtx_visited); //visito in profondità i vertici che partono da questa adiacenza per vedere se esistono percorsi alternativi migliori
-                    
-                    if(sp_succ_down[idx_curr]->dist + adj_curr->weight < sp_succ_down[adj_curr->idx_vrtx_dst]->dist)   {  //con la distanza calcolata fino a quel punto più il peso dell'arco minore della distanza calcolata nell'adiacente 
-                        sp_succ_down[idx_curr]->succ = adj_curr->idx_vrtx_dst;
-                        sp_succ_down[idx_curr]->dist = sp_succ_down[adj_curr->idx_vrtx_dst]->dist + adj_curr->weight;   //e aggiorno la distanza accumulata con il peso dell'arco visitato        
-                    }
-                }
-                //se il percorso trovato dalla DFS ha una distanza minore rispetto a quella del suo successore attuale, effettuo lo scambio
-            }   
-        }else   //se è un predecessore
-            idx_pred = adj_curr->idx_vrtx_dst; //mi salvo temporaneamente questo indice
-        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente        
-    }
-    //Calcolo distanze con il PREDECESSORE
-    if(graph_sp_conditionSucc_high(vrtx[idx_curr]->height, vrtx[idx_pred]->height, isAscent) //se il PREDECESSORE si trova più in alto, oppure alla stessa altezza e si sta salendo lungo il percorso a ritroso
-    && sp_succ_down[idx_curr]->dist + adj_curr->weight < sp_succ_down[idx_pred]->dist) {  //con la distanza calcolata fino a quel punto più il peso dell'arco minore della distanza calcolata nell'adiacente
-        sp_succ_down[idx_pred]->succ = idx_curr; //assegno il nodo attuale come successore a scendere del nodo PREDECESSORE
-        sp_succ_down[idx_pred]->dist = sp_succ_down[idx_curr]->dist + adj_curr->weight;   //e aggiorno la distanza accumulata con il peso dell'arco visitato
-    } else if(graph_sp_conditionSucc_low(vrtx[idx_curr]->height, vrtx[idx_pred]->height, isAscent) //se il PREDECESSORE si trova più in basso, oppure alla stessa altezza e si sta scendendo lungo il percorso a ritroso
-    && sp_succ_up[idx_curr]->dist + adj_curr->weight < sp_succ_up[idx_pred]->dist) {   //con la distanza calcolata fino a quel punto più il peso dell'arco minore della distanza calcolata nell'adiacente
-        sp_succ_up[idx_pred]->succ = idx_curr; //assegno il nodo attuale come successore a salire del nodo PREDECESSORE
-        sp_succ_up[idx_pred]->dist = sp_succ_up[idx_curr]->dist + adj_curr->weight;   //e aggiorno la distanza accumulata con il peso dell'arco visitato
-    }
-    vrtx_visited[idx_curr] = 1; //segnalo che il vertice è stato visitato e calcolato
-
-    if(idx_curr != idx_src) {   //se il nodo visitato non è la sorgente, continuo la visita
-        if(isAscent && (vrtx[idx_curr]->height > vrtx[pred[idx_curr]]->height)) //se, continuando il percorso a ritroso, il predecessore successivo nel DFS da visitare va in discesa rispetto al nodo attuale
-            isAscent = 0; //da ora in poi valgono solo percorsi in discesa
-        graph_sp_calculate_visit(vrtx, pred, pred[idx_curr], sp_succ_up, sp_succ_down, idx_src, idx_dst, isAscent, vrtx_visited);    //visito il nodo precedente del DFS
-    }
-}
-
-void graph_sp_calculate_DFS_visit(GRAPHvrtx *vrtx, int *pred, int idx_curr, SUCC *sp_succ_up, SUCC *sp_succ_down, int idx_src, int idx_dst, int isAscent, int *vrtx_visited)   {
-    LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale    
-    printf("DEBUG visit in calc: adj [%d]%d - isAscent %d", idx_curr, vrtx[idx_curr]->height, isAscent);
-
-    while(adj_curr)    {    //ciclo fin quando non svuoto la Lista
-        if(graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height))    { //se l'adiacente rispetta i vincoli richiesti
-            if(vrtx_visited[adj_curr->idx_vrtx_dst])    {   //se il nodo adiacente è stato visitato e calcolato
-                if((graph_sp_conditionSucc_high(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent) //se l'adiacente si trova più in alto oppure alla stessa altezza e si sta salendo
-                && sp_succ_up[idx_curr]->dist + adj_curr->weight < sp_succ_up[adj_curr->idx_vrtx_dst]->dist))    {   //con la distanza calcolata fino a quel punto più il peso dell'arco minore della distanza calcolata nell'adiacente
-                    sp_succ_up[idx_curr]->succ = adj_curr->idx_vrtx_dst;
-                    sp_succ_up[idx_curr]->dist = sp_succ_up[adj_curr->idx_vrtx_dst]->dist + adj_curr->weight;   //e aggiorno la distanza accumulata con il peso dell'arco visitato
-                } else if((graph_sp_conditionSucc_low(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent)   //se l'adiacente si trova più in basso oppure alla stessa altezza e si sta scendendo
-                && sp_succ_down[idx_curr]->dist + adj_curr->weight < sp_succ_down[adj_curr->idx_vrtx_dst]->dist))   {  //con la distanza calcolata fino a quel punto più il peso dell'arco minore della distanza calcolata nell'adiacente 
-                    sp_succ_down[idx_curr]->succ = adj_curr->idx_vrtx_dst;
-                    sp_succ_down[idx_curr]->dist = sp_succ_down[adj_curr->idx_vrtx_dst]->dist + adj_curr->weight;   //e aggiorno la distanza accumulata con il peso dell'arco visitato        
-                }
-            } else{
-                if(isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) //se, continuando il percorso a ritroso, il predecessore successivo nel DFS da visitare va in discesa rispetto al nodo attuale
-                    isAscent = 0; //da ora in poi valgono solo percorsi in discesa    graph_sp_DFS_visit(grafo_lista, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, color, isAscent);    //visito il nodo appena incontrato/*/
-                graph_sp_calculate_visit(vrtx, pred, adj_curr->idx_vrtx_dst, sp_succ_up, sp_succ_down, idx_src, idx_dst, isAscent, vrtx_visited);    //visito il nodo precedente del DFS
-            }
-        }
-        adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente
-    }
-}
-
-int graph_sp_conditionSucc_high(int heigth_curr, int heigth_adj, int isAscent)   {
-    int ret = 0;
-    if(heigth_adj > heigth_curr || (heigth_adj == heigth_curr && isAscent)) //se l'adiacente si trova più in alto oppure alla stessa altezza e si sta salendo
-        ret = 1;
-    return ret;
-}
- 
-int graph_sp_conditionSucc_low(int heigth_curr, int heigth_adj, int isAscent)   {
-    int ret = 0;
-    if(heigth_adj < heigth_curr || (heigth_adj == heigth_curr && !isAscent)) //se l'adiacente si trova più in basso oppure alla stessa altezza e si sta scendendo
-        ret = 1;
-    return ret;
-}
-
-//Stampa del percorso minimo fra due vertici
-void graph_sp_printPath(GRAPHvrtx *vrtx, SUCC *sp_succ_up, SUCC *sp_succ_down, int idx_src, int idx_dst, int isAscent)  {
-    if(idx_src == idx_dst)
-        printf(" %d", idx_src);
+//Stampa e calcolo del percorso minimo fra due vertici definito dall'array dei predecessori
+int graph_sp_path_print(GRAPHvrtx *vrtx, int idx_src, int idx_dst, int *pred)  {
+    int sum = 0;
+    if(idx_src == idx_dst)  {
+        printf("%d ", idx_src);
+        sum = 0;
+    } else if(pred[idx_dst] == -1)
+        printf("ATTENZIONE: non esiste alcun cammino tra la sorgente e la destinazione scelta\n\n");
     else    {
-        printf("%d -> ", idx_src);
-        if(sp_succ_up[idx_src]->succ != -1 && isAscent) 
-            graph_sp_printPath(vrtx, sp_succ_up, sp_succ_down, sp_succ_up[idx_src]->succ, idx_dst, isAscent);
-        else if(sp_succ_down[idx_src]->succ != -1)
-            graph_sp_printPath(vrtx, sp_succ_up, sp_succ_down, sp_succ_down[idx_src]->succ, idx_dst, !isAscent);        
+        sum = graph_sp_path_print(vrtx, idx_src, pred[idx_dst], pred);
+        sum += list_visit_searchIdx(vrtx[pred[idx_dst]]->adj, idx_dst);
+        printf("-> %d ", idx_dst);
     }
+    return sum;
 }
+
