@@ -15,7 +15,9 @@ int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
     }
     //N.B.: per poter riconoscere la presenza di (almeno) un percorso che raggiunga la destinazione, non visiterò altre radici bianchi al di fuori della sorgente
     *dist_dest = INT_MAX;
-    if(graph_sp_DFS_visit(grafo_lista->vrtx, idx_src, idx_src, idx_dst, pred, 0, dist_dest, color, 1)) //parto solo dalla radice
+    graph_sp_DFS_visit(grafo_lista->vrtx, idx_src, idx_src, idx_dst, pred, 0, dist_dest, color, 1); //parto solo dalla radice
+    
+    if(*dist_dest != INT_MAX)
         printf("Percorso TROVATO - Distanza complessiva: %d\n\n", *dist_dest);
     else
         printf("ATTENZIONE: non è stato trovato alcun percorso\n\n");
