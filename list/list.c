@@ -66,13 +66,3 @@ int list_visit(LIST L_curr) {  //con L_slave ottengo l'elenco dei vertici dispon
     }
     return conta;
 }
-
-//Ricerca elemento della lista
-int list_visit_searchIdx(LIST L_curr, int idx) { 
-    while(L_curr) {
-        if(L_curr->idx_vrtx_dst == idx)
-            return L_curr->weight;
-        L_curr = L_curr->next;
-    }
-    return -1;
-}

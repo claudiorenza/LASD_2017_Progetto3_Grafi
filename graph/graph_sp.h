@@ -13,11 +13,11 @@ typedef struct Successore * SUCC;
 
 int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst);
 
-void graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, int *pred, int *dist, char *color, int isAscent);
+int graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, int *pred, int dist_curr, int *dist_dest, char *color, int isAscent);
 
 int graph_sp_conditionElev(int height_curr, int height_adj, int isAscent, int height_src, int height_dst);
 
-int graph_sp_path_print(GRAPHvrtx *vrtx, int idx_src, int idx_dst, int *pred);
+void graph_sp_path_print(GRAPHvrtx *vrtx, int idx_src, int idx_dst, int *pred);
 
 
 

@@ -4,7 +4,7 @@
 int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
     int idx;
     int *pred = (int *)malloc(sizeof(int) * (grafo_lista->idx_max)+1);    //per futura utilità, dispongo anche l'array degli indici dei predecessori
-    int *dist = (int *)malloc(sizeof(int) * (grafo_lista->idx_max)+1);    //distanza calcolata a partire dalla sorgente
+    int *dist_dest = (int *)malloc(sizeof(int));    //distanza calcolata a partire dalla sorgente
 
     char *color = (char *)malloc(sizeof(char) * (grafo_lista->idx_max)+1);   //creo l'array dei colori associati ai vertici, quantificati in grafo_lista[0]
 
@@ -12,38 +12,43 @@ int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
         if(grafo_lista->vrtx[idx]->adj)
             color[idx] = 'w';
             pred[idx] = -1;
-            dist[idx] = INT_MAX;
     }
     //N.B.: per poter riconoscere la presenza di (almeno) un percorso che raggiunga la destinazione, non visiterò altre radici bianchi al di fuori della sorgente
-    dist[idx_src] = 0;
-    graph_sp_DFS_visit(grafo_lista->vrtx, idx_src, idx_src, idx_dst, pred, dist, color, 1); //parto solo dalla radice
-
+    *dist_dest = INT_MAX;
+    if(graph_sp_DFS_visit(grafo_lista->vrtx, idx_src, idx_src, idx_dst, pred, 0, dist_dest, color, 1)) //parto solo dalla radice
+        printf("Percorso TROVATO - Distanza complessiva: %d\n\n", *dist_dest);
+    else
+        printf("ATTENZIONE: non è stato trovato alcun percorso\n\n");
     free(color);
     return pred;
 }
 
 //Durante la visita in profondità ricorsiva
-void graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, int *pred, int *dist, char *color, int isAscent)    {
+int graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, int *pred, int dist_curr, int *dist_dest, char *color, int isAscent)    {
     LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
+    int ret = 0;
     while(adj_curr)    {    //ciclo fin quando non svuoto la Lista
         if(graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height)) {  //se l'adiacente rispetta i vincoli richiesti
             if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
-                pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
-                dist[adj_curr->idx_vrtx_dst] = dist[idx_curr] + adj_curr->weight; //sommo la distanza calcolata dal nodo corrente al successivo
                 if(isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) //se il successore nella visita va in discesa
-                    isAscent = 0; //da ora in poi valgono solo percorsi in discesa
-                graph_sp_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, dist, color, isAscent);    //visito il nodo appena incontrato
-            } else if(color[adj_curr->idx_vrtx_dst] == 'b')    {    //se è NERO, quindi un nodo già visitato
-                if(dist[idx_curr] + adj_curr->weight < dist[adj_curr->idx_vrtx_dst])   {  //confronto la distanza calcolata fino a quel punto più il peso dell'arco dell'adiacente già visitato
-                    pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente
-                    //N.B.: la distanza reale del percorso verrà calcolata una volta completato il dfs, ovvero durante la stampa
-                }
+                    isAscent = 0;               //da ora in poi valgono solo percorsi in discesa
+                if(adj_curr->idx_vrtx_dst == idx_dst)   {              //se ho raggiunto la destinazione dal nodo attuale
+                    if(dist_curr + adj_curr->weight < *dist_dest)  {   //e la distanza accumulata fino alla destinazione è minore della distanza calcolata precedentemente 
+                        *dist_dest = dist_curr + adj_curr->weight;     //aggiorno il valore della distanza accumulata fino alla destinazione
+                        pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore della destinazione
+                        color[idx_curr] = 'w';                         //rimetto in BIANCO il nodo attuale in caso di presenza di altri percorsi calcolabili
+                        return 1;                                      //non continuo la visita del prossimo adiacente e torno indietro
+                    }
+                } else if((ret = graph_sp_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, dist_curr + adj_curr->weight, dist_dest, color, isAscent)))    //visito il nodo appena incontrato
+                    //se ret == '1', vuol dire che è stata trovata la destinazione, quindi assegno il predecessore
+                    pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente                   
             }
         }
         adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente        
     }
-    color[idx_curr] = 'b';  //completo la visita del nodo in NERO    
+    color[idx_curr] = 'w';  //rimetto in BIANCO il nodo per gli altri percorsi da visitare
+    return ret;
 }
 
 
@@ -68,19 +73,13 @@ int graph_sp_conditionElev(int height_curr, int height_adj, int isAscent, int he
     return ret;
 }
 
-//Stampa e calcolo del percorso minimo fra due vertici definito dall'array dei predecessori
-int graph_sp_path_print(GRAPHvrtx *vrtx, int idx_src, int idx_dst, int *pred)  {
-    int sum = 0;
+//Stampa del percorso minimo fra due vertici definito dall'array dei predecessori
+void graph_sp_path_print(GRAPHvrtx *vrtx, int idx_src, int idx_dst, int *pred)  {
     if(idx_src == idx_dst)  {
         printf("%d ", idx_src);
-        sum = 0;
-    } else if(pred[idx_dst] == -1)
-        printf("ATTENZIONE: non esiste alcun cammino tra la sorgente e la destinazione scelta\n\n");
-    else    {
-        sum = graph_sp_path_print(vrtx, idx_src, pred[idx_dst], pred);
-        sum += list_visit_searchIdx(vrtx[pred[idx_dst]]->adj, idx_dst);
+    } else    {
+        graph_sp_path_print(vrtx, idx_src, pred[idx_dst], pred);
         printf("-> %d ", idx_dst);
     }
-    return sum;
 }
 

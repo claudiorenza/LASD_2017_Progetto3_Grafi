@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "graph_sp.h": "c",
+        "graph_sp.old.h": "c",
+        "list.h": "c"
+    }
+}

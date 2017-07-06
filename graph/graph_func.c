@@ -239,8 +239,6 @@ void graph_func_sp(GRAPHlist grafo_lista)    {
     int idx_src, idx_dst;
     int *pred = graph_sp_DFS(grafo_lista, (idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente")), (idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione")));
     if(pred[idx_dst] != -1)   {   //se è stato visitato il nodo di destinazione partendo dalla sorgente, allora esiste un percorso applicato ai vincoli
-        printf("Percorso trovato\n");
-        printf("La lunghezza del percorso è %d\n\n", graph_sp_path_print(grafo_lista->vrtx, idx_src, idx_dst, pred)); //stampa e somma del percorso
-    } else
-        printf("ATTENZIONE: Non esiste alcun percorso tra %d e %d che soddisfi i requisiti\n\n", idx_src, idx_dst);
+        graph_sp_path_print(grafo_lista->vrtx, idx_src, idx_dst, pred); //stampa del percorso
+    }
 }

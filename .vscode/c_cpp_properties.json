@@ -15,7 +15,8 @@
                     "//Applications/Xcode.app//Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/include/",
                     "//Applications/Xcode.app//Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/"
                 ]
-            }
+            },
+            "intelliSenseMode": "clang-x64"
         },
         {
             "name": "Linux",
@@ -30,7 +31,8 @@
                     "/usr/include",
                     "/usr/local/include"
                 ]
-            }
+            },
+            "intelliSenseMode": "clang-x64"
         },
         {
             "name": "Win32",
@@ -43,7 +45,8 @@
                 "path": [
                     "C:\\Users\\kloud\\OneDrive\\Software\\CodeBlocks 16\\MinGW\\include"
                 ]
-            }
+            },
+            "intelliSenseMode": "msvc-x64"
         }
     ]
 }
