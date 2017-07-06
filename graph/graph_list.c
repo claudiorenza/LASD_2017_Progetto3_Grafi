@@ -21,7 +21,9 @@ GRAPHlist graph_list_init()   {
     }
     return grafo_lista;
 }
-
+    
+    
+//Selettore di inserimento di duplicati
 void graph_list_dupEnabler(GRAPHlist grafo_lista)   {
     char confirm;
     do	{
@@ -35,6 +37,49 @@ void graph_list_dupEnabler(GRAPHlist grafo_lista)   {
             printf("ATTENZIONE: Comando non valido\n\n");
     }while(confirm != 's' && confirm != 'S' && confirm != 'n' && confirm != 'N');
 }
+
+
+//Estrazione dei caratteri da file per la realizzazione del grafo
+void graph_list_parse(GRAPHlist grafo_lista, FILE *file)    {
+    int idx, idx_src, n_elem,cursor = 0;
+    
+    printf("Numero elementi: %d\n", (n_elem = io_fgetInteger(file)));
+    printf("Duplicati: ");
+    if(grafo_lista->dup == io_fgetInteger(file))
+        printf("Ammessi\n");
+    else
+        printf("NON ammessi\n");
+    io_pressKey();
+
+    while(((cursor = fgetc(file)) == '\n')) //vado avanti finché non trovo un nuovo carattere
+		;
+    ungetc(cursor,file);
+
+    for(idx=0;idx<n_elem;idx++)    {
+        graph_list_insVertex(grafo_lista, io_fgetInteger(file), io_fgetInteger(file), -1);	
+        //N.B. in caso di duplicati accettati, weight == -1 indica la lettura da file, quindi gli archi adiacenti vengono caricati dopo;
+        
+        //printf("DEBUG: inserimento - %d/%d\n", idx, n_elem);
+        //io_pressKey();
+        
+    }
+    while(((cursor = fgetc(file)) == '\n')) //vado avanti finché non trovo un nuovo carattere
+        ;
+    ungetc(cursor,file);
+    while(cursor != EOF)  {
+        idx_src = io_fgetInteger(file);
+        //printf("DEBUG: vertice partenza - %d\n", idx_src);                
+        while(((cursor = fgetc(file)) != EOF) && cursor != '\n') {   
+            //printf("DEBUG: cursor esterno %c\n", cursor);            
+            ungetc(cursor,file);    //rimetto l'ultimo carattere nel file*/       
+            //printf("DEBUG: nuovo adiacente\n");
+            grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, io_fgetInteger(file), io_fgetInteger(file)); //inserimento in testo nella Lista di Adiacenza di idx_src
+            //io_pressKey();  
+        }
+
+    }
+}
+
 
 //Inserimento/Allocazione di un nuovo vertice nel Grafo e nella Lista di Adiacenza
 void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight) {     //se il peso è = 0, trattasi di inserimento manuale e non generazione randomica
@@ -57,7 +102,7 @@ void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight
                 height = random_num(0, MAX_graph-1);  //verrà scelta un altezza randomicamente;
             }
         }
-        if(grafo_lista->dup && grafo_lista->heights[height])  {    //se è possibile inserire duplicati ed esiste già un nodo che ha la stessa altezza...
+        if(grafo_lista->dup && grafo_lista->heights[height] && weight != -1)  {    //se è possibile inserire duplicati ed esiste già un nodo che ha la stessa altezza...; weight == -1 indica la lettura del grafo da file
             if(weight == 0) //se non ho impostato un peso per l'inserimento di un singolo vertice con altezza già presente
                 weight = random_num(1, MAX_weight);  //applicherò un peso casuale all'arco adiacente della stessa altezza
             graph_list_insArc(grafo_lista, idx, grafo_lista->heights[height]->idx_vrtx_dst, weight);   //...applico subito questo nuovo nodo all'adiacente del vertice posto alla stessa altezza

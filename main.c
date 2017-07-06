@@ -14,8 +14,9 @@ int main()  {
 
     do	{
 		io_clearScreen();
-		printf("\t\tProgetto 3 - Gruppo 32 - MENU PRINCIPALE\n");
+		printf("\t\tProgetto 3 - Gruppo 32 - MENU PRINCIPALE\n\n");
 
+		printf("0. Leggi il Grafo da file\n");
         printf("1. Genera un Grafo\n");
         printf("2. Inserisci un nuovo vertice\n");
         if(grafo_lista->n_vrtx != 0) {
@@ -34,16 +35,20 @@ int main()  {
 
         do {
             printf("SCELTA: ");
-            if(((choiceMenu = io_getInteger()) < 1 || choiceMenu > 11) || (!grafo_lista && (choiceMenu > 3 && choiceMenu < 11)))
+            if(((choiceMenu = io_getInteger()) < 0 || choiceMenu > 11) || (!grafo_lista && (choiceMenu > 3 && choiceMenu < 11)))
                 printf("ATTENZIONE: valore non valido\n\n");
-        }while((choiceMenu < 1 || choiceMenu > 11) || (!grafo_lista && (choiceMenu > 3 && choiceMenu < 11)));
+        }while((choiceMenu < 0 || choiceMenu > 11) || (!grafo_lista && (choiceMenu > 3 && choiceMenu < 11)));
 
 
-		if(grafo_lista->n_vrtx == 0 && choiceMenu != 11)	
+		if(grafo_lista->n_vrtx == 0 && choiceMenu != 0 && choiceMenu != 11)	
 			graph_list_dupEnabler(grafo_lista);
 
 		io_clearScreen();
 		switch(choiceMenu)	{
+			case 0:
+				printf("LETTURA GRAFO DA FILE\n\n");
+                graph_func_load(grafo_lista);
+				break;
 			case 1:
 				printf("GENERAZIONE GRAFO\n\n");
                 graph_func_generate(grafo_lista);

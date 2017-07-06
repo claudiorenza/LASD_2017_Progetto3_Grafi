@@ -34,6 +34,8 @@ typedef struct GrafoLista * GRAPHlist;
 GRAPHlist graph_list_init();
 void graph_list_dupEnabler(GRAPHlist grafo_lista);
 
+void graph_list_parse(GRAPHlist grafo_lista, FILE *file);
+
 void graph_list_insVertex(GRAPHlist grafo_lista, int idx, int height, int weight);
 
 void graph_list_insArc(GRAPHlist grafo_lista, int idx_src, int idx_dst, int weight);

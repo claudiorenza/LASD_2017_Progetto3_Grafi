@@ -2,6 +2,12 @@
     "files.associations": {
         "graph_sp.h": "c",
         "graph_sp.old.h": "c",
-        "list.h": "c"
+        "list.h": "c",
+        "stdio.h": "c",
+        "graph_func.c": "cpp",
+        "graph_list.h": "c",
+        "graph_list.c": "cpp",
+        "io.c": "cpp",
+        "list.c": "cpp"
     }
 }

@@ -5,6 +5,9 @@
 #include "graph_list.h"
 #include "graph_sp.h"
 
+
+void graph_func_load(GRAPHlist grafo_lista);
+
 void graph_func_generate(GRAPHlist grafo_lista);
 
 void graph_func_insertKey(GRAPHlist grafo_lista);

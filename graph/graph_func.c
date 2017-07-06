@@ -1,5 +1,36 @@
 #include "graph_func.h"
 
+void graph_func_load(GRAPHlist grafo_lista) {
+    char file_nome[255];
+    FILE *file;
+    if(grafo_lista->n_vrtx != 0)	{	//se è già presente, chiedo al'utente quale operazione effettuare sul grafo
+        printf("ATTENZIONE: Grafo già presente. È necessaria la cancellazione\n\n");
+        graph_func_delete(grafo_lista);
+        printf("\n");
+        if(!(grafo_lista->n_vrtx))  
+            printf("Grafo eliminato\n\n");
+    }    
+    if(!(grafo_lista->n_vrtx))  { //se il Grafo è stato cancellato o se già era vuoto
+        printf("Inserisci il nome del file: ");
+        io_getString(file_nome, 255);
+        if((file = fopen(file_nome,"r")))   {   //Apertura e controllo del file in sola lettura
+            graph_list_parse(grafo_lista, file);  //Lettura dei valori presenti nel file
+            fclose(file);
+            printf("\n");
+            if(grafo_lista->vrtx)    {  //Stampa del grafo
+                printf("Lettura file completata\n\n");
+                printf("\n\n");
+                printf("\tGrafo [<indice>]<altezza> (<peso>)\n");
+                graph_func_print(grafo_lista);
+            } else
+                printf("ATTENZIONE: Grafo vuoto\n");
+        } else
+            printf("ATTENZIONE: Errore nell'apertura del file\n");
+    }
+}
+
+
+
 void graph_func_generate(GRAPHlist grafo_lista) {
     int idx, n_elem, n_arcs, idx_arc, idx_dst;
     if(grafo_lista->n_vrtx != 0)	{	//se è già presente, chiedo al'utente quale operazione effettuare sul grafo
