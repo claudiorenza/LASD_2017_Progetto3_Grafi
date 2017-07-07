@@ -7,8 +7,6 @@ void graph_func_load(GRAPHlist grafo_lista) {
         printf("ATTENZIONE: Grafo già presente. È necessaria la cancellazione\n\n");
         graph_func_delete(grafo_lista);
         printf("\n");
-        if(!(grafo_lista->n_vrtx))  
-            printf("Grafo eliminato\n\n");
     }    
     if(!(grafo_lista->n_vrtx))  { //se il Grafo è stato cancellato o se già era vuoto
         //printf("Inserisci il nome del file: ");
