@@ -22,4 +22,6 @@ void io_clearScreen();
 
 void io_pressKey();
 
+void check_cursor(char cursor);
+
 #endif

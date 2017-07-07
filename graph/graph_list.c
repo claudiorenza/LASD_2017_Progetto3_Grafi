@@ -41,41 +41,45 @@ void graph_list_dupEnabler(GRAPHlist grafo_lista)   {
 
 //Estrazione dei caratteri da file per la realizzazione del grafo
 void graph_list_parse(GRAPHlist grafo_lista, FILE *file)    {
-    int idx, idx_src, n_elem,cursor = 0;
+    int idx, idx_src, idx_dst, n_elem, height, weight;
+    char cursor;
     
-    printf("Numero elementi: %d\n", (n_elem = io_fgetInteger(file)));
-    printf("Duplicati: ");
-    if(grafo_lista->dup == io_fgetInteger(file))
-        printf("Ammessi\n");
+    fscanf(file, "%d ", &n_elem);
+    printf("Numero elementi: %d\n", n_elem);
+
+    fscanf(file, "%d\n\n", &(grafo_lista->dup));    
+    if(grafo_lista->dup)
+        printf("Duplicati: Ammessi %d\n", grafo_lista->dup);
     else
-        printf("NON ammessi\n");
+        printf("Duplicati: NON ammessi %d\n", grafo_lista->dup);
     io_pressKey();
 
-    while(((cursor = fgetc(file)) == '\n')) //vado avanti finché non trovo un nuovo carattere
-		;
-    ungetc(cursor,file);
-
     for(idx=0;idx<n_elem;idx++)    {
-        graph_list_insVertex(grafo_lista, io_fgetInteger(file), io_fgetInteger(file), -1);	
+        fscanf(file, "%d ", &idx_src);    
+        fscanf(file, "%d\n", &height);    
+        
+        graph_list_insVertex(grafo_lista, idx_src, height, -1);	
         //N.B. in caso di duplicati accettati, weight == -1 indica la lettura da file, quindi gli archi adiacenti vengono caricati dopo;
         
-        printf("DEBUG: inserimento - %d/%d\n", idx, n_elem);
+        printf("DEBUG: inserimento - %d/%d\n", idx, n_elem-1);
         io_pressKey();
         
     }
-    while(((cursor = fgetc(file)) == '\n')) //vado avanti finché non trovo un nuovo carattere
-        ;
-    ungetc(cursor,file);
-    while(cursor != EOF)  {
-        idx_src = io_fgetInteger(file);
+    fscanf(file, "\n");   //conto un a capo in più come separazione 
+
+    while(!feof(file))  {
+        fscanf(file, "%d: ", &idx_src);    
         printf("DEBUG: vertice partenza - %d\n", idx_src);                
-        while(((cursor = fgetc(file)) != EOF) && cursor != '\n') {   
-            printf("DEBUG: cursor esterno %c\n", cursor);            
-            ungetc(cursor,file);    //rimetto l'ultimo carattere nel file*/       
-            printf("DEBUG: nuovo adiacente\n");
-            grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, io_fgetInteger(file), io_fgetInteger(file)); //inserimento in testo nella Lista di Adiacenza di idx_src
+        do {   
+            fscanf(file, "%d", &idx_dst);    
+            fscanf(file, "(%d)%c", &weight, &cursor);    
+
+            printf("DEBUG: idx_dst[%d](%d)\n", idx_dst, weight);
+            check_cursor(cursor);
+
+            grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, idx_dst, weight); //inserimento in testo nella Lista di Adiacenza di idx_src
             io_pressKey();  
-        }
+        }while(cursor == ' ');
 
     }
 }

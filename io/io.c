@@ -39,17 +39,11 @@ int io_fgetInteger(FILE *file)    {
 	
 	if(!lecture)
 		printf("ATTENZIONE: numero non presente nel file\n");
-	while(((cursor = fgetc(file)) == '\t') /*|| (cursor == '\n')*/ || (cursor == ' ')) //vado avanti finché non trovo un nuovo carattere
-		;
 
-	if(cursor == '\n')	{
-		printf("DEBUG: Carattere Pronto alla Lettura - A capo!!!\n");
-	} else
-		printf("DEBUG: Carattere Pronto alla Lettura - %c\n", cursor);
+	check_cursor(cursor);
 
-	if(cursor != EOF)       	//se non è stato raggiunto l'End Of File
+	/*if(cursor != EOF)       	//se non è stato raggiunto l'End Of File
 		ungetc(cursor,file);    //rimetto l'ultimo carattere nel file*/
-
 	return num;
 }
 
@@ -67,4 +61,17 @@ void io_pressKey()	{
 	printf("\n");
 	printf("Premere invio per continuare...");
 	getchar();
+}
+
+void check_cursor(char cursor)	{
+	if(cursor == '\n')
+		printf("DEBUG: Carattere - [A capo]\n");
+	else if(cursor == ';')
+		printf("DEBUG: Carattere - ;\n");
+	else if(cursor == ',')
+		printf("DEBUG: Carattere - ,\n");
+	else if(cursor == ' ')
+		printf("DEBUG: Carattere - [Spazio]\n");
+	else
+		printf("DEBUG: Carattere - %c\n", cursor);
 }
