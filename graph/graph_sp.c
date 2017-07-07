@@ -78,7 +78,7 @@ int graph_sp_conditionElev(int height_curr, int height_adj, int isAscent, int he
     printf("\t\t[DEBUG COND] h_curr=%d - h_adj=%d - isAscent=%d - h_src=%d - h_dst=%d\n", height_curr, height_adj, isAscent, height_src, height_dst);    
     if(height_src == height_curr || height_curr <= height_dst) {   //Se parto dalla sorgente, oppure la destinazione è situata più in alto,
         printf("\t\t[DEBUG COND] Sorgente o altezza inferiore alla destinazione\n");            
-        if(height_curr <= height_adj /*&& isAscent */)   {        //devo necessariamente salire o passare all'adiacente posto alla stessa altitudine.
+        if(height_curr <= height_adj && isAscent)   {        //devo necessariamente salire o passare all'adiacente posto alla stessa altitudine.
             printf("\t\t[DEBUG COND] In salita\n");            
             if(height_adj != height_dst)     //Se salendo non trovo già la destinazione,
                 ret = 1;
