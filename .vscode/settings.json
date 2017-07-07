@@ -8,6 +8,8 @@
         "graph_list.h": "c",
         "graph_list.c": "cpp",
         "io.c": "cpp",
-        "list.c": "cpp"
+        "list.c": "cpp",
+        "graph_sp.c": "cpp",
+        "graph_sp.old.c": "cpp"
     }
 }

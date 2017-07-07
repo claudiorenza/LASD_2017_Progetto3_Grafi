@@ -264,11 +264,13 @@ void graph_func_print(GRAPHlist grafo_lista)	{
 //Visita in DFS con applicazione dei vincoli
 void graph_func_sp(GRAPHlist grafo_lista)    {
     printf("\tGrafo [<indice>]<altezza> (<peso>)\n");        
-    graph_func_print(grafo_lista);		//stampa dell'grafo per una consultazione del vertice da eliminare
+    graph_func_print(grafo_lista);		//stampa dell'grafo per una consultazione dei vertici da definire come sorgente e destinazione
 
     
     int idx_src, idx_dst;
+    printf("\t[DEBUG DFS] INIZIO algoritmo\n");    
     int *pred = graph_sp_DFS(grafo_lista, (idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente")), (idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione")));
+    printf("\t[DEBUG DFS] FINE algoritmo\n");
     if(pred[idx_dst] != -1)   {   //se è stato visitato il nodo di destinazione partendo dalla sorgente, allora esiste un percorso applicato ai vincoli
         graph_sp_path_print(grafo_lista->vrtx, idx_src, idx_dst, pred); //stampa del percorso
     }

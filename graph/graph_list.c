@@ -59,8 +59,8 @@ void graph_list_parse(GRAPHlist grafo_lista, FILE *file)    {
         graph_list_insVertex(grafo_lista, io_fgetInteger(file), io_fgetInteger(file), -1);	
         //N.B. in caso di duplicati accettati, weight == -1 indica la lettura da file, quindi gli archi adiacenti vengono caricati dopo;
         
-        //printf("DEBUG: inserimento - %d/%d\n", idx, n_elem);
-        //io_pressKey();
+        printf("DEBUG: inserimento - %d/%d\n", idx, n_elem);
+        io_pressKey();
         
     }
     while(((cursor = fgetc(file)) == '\n')) //vado avanti finché non trovo un nuovo carattere
@@ -68,13 +68,13 @@ void graph_list_parse(GRAPHlist grafo_lista, FILE *file)    {
     ungetc(cursor,file);
     while(cursor != EOF)  {
         idx_src = io_fgetInteger(file);
-        //printf("DEBUG: vertice partenza - %d\n", idx_src);                
+        printf("DEBUG: vertice partenza - %d\n", idx_src);                
         while(((cursor = fgetc(file)) != EOF) && cursor != '\n') {   
-            //printf("DEBUG: cursor esterno %c\n", cursor);            
+            printf("DEBUG: cursor esterno %c\n", cursor);            
             ungetc(cursor,file);    //rimetto l'ultimo carattere nel file*/       
-            //printf("DEBUG: nuovo adiacente\n");
+            printf("DEBUG: nuovo adiacente\n");
             grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, io_fgetInteger(file), io_fgetInteger(file)); //inserimento in testo nella Lista di Adiacenza di idx_src
-            //io_pressKey();  
+            io_pressKey();  
         }
 
     }
