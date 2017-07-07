@@ -269,7 +269,9 @@ void graph_func_sp(GRAPHlist grafo_lista)    {
     
     int idx_src, idx_dst;
     printf("\t[DEBUG DFS] INIZIO algoritmo\n");    
-    int *pred = graph_sp_DFS(grafo_lista, (idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente")), (idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione")));
+    idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente");
+    idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione");
+    int *pred = graph_sp_DFS(grafo_lista, idx_src, idx_dst);
     printf("\t[DEBUG DFS] FINE algoritmo\n");
     if(pred[idx_dst] != -1)   {   //se è stato visitato il nodo di destinazione partendo dalla sorgente, allora esiste un percorso applicato ai vincoli
         graph_sp_path_print(grafo_lista->vrtx, idx_src, idx_dst, pred); //stampa del percorso
