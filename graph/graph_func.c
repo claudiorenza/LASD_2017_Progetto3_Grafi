@@ -177,8 +177,10 @@ void graph_func_BFS(GRAPHlist grafo_lista)   {
     printf("\tGrafo [<indice>]<altezza> (<peso>)\n");    
     graph_func_print(grafo_lista);
 
+    int idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente"), idx_dst = graph_func_choiceVrtx(grafo_lista, "di destinazione");
+    
     if(grafo_lista->n_vrtx > 1) {
-        graph_list_path(grafo_lista, graph_func_choiceVrtx(grafo_lista, "sorgente"), graph_func_choiceVrtx(grafo_lista, "di destinazione"), 0);  //4° param = 0: BFS
+        graph_list_path(grafo_lista, idx_src, idx_dst, 0);  //4° param = 0: BFS
     } else
         printf("ATTENZIONE: nel grafo scelto è presente un solo vertice\n");
 }
@@ -188,8 +190,10 @@ void graph_func_DFS(GRAPHlist grafo_lista)   {
     printf("\tGrafo [<indice>]<altezza> (<peso>)\n");        
     graph_func_print(grafo_lista);
 
+    int idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente"), idx_dst = graph_func_choiceVrtx(grafo_lista, "di destinazione");
+    
     if(grafo_lista->n_vrtx > 1) {
-        graph_list_path(grafo_lista, graph_func_choiceVrtx(grafo_lista, "sorgente"), graph_func_choiceVrtx(grafo_lista, "di destinazione"), 1);   //4° param = 1: DFS
+        graph_list_path(grafo_lista, idx_src, idx_dst, 1);   //4° param = 1: DFS
     } else
         printf("ATTENZIONE: nel grafo scelto è presente un solo vertice\n");
 }
@@ -263,12 +267,9 @@ void graph_func_print(GRAPHlist grafo_lista)	{
 void graph_func_sp(GRAPHlist grafo_lista)    {
     printf("\tGrafo [<indice>]<altezza> (<peso>)\n");        
     graph_func_print(grafo_lista);		//stampa dell'grafo per una consultazione dei vertici da definire come sorgente e destinazione
-
     
-    int idx_src, idx_dst;
     printf("\t[DEBUG DFS] INIZIO algoritmo\n");    
-    idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente");
-    idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione");
+    int idx_src = graph_func_choiceVrtx(grafo_lista, "sorgente"), idx_dst = graph_func_choiceVrtx(grafo_lista, "destinazione");
     int *pred = graph_sp_DFS(grafo_lista, idx_src, idx_dst);
     printf("\t[DEBUG DFS] FINE algoritmo\n");
     if(pred[idx_dst] != -1)   {   //se è stato visitato il nodo di destinazione partendo dalla sorgente, allora esiste un percorso applicato ai vincoli
