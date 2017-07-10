@@ -9,8 +9,8 @@ void graph_func_load(GRAPHlist grafo_lista) {
         printf("\n");
     }    
     if(!(grafo_lista->n_vrtx))  { //se il Grafo è stato cancellato o se già era vuoto
-        //printf("Inserisci il nome del file: ");
-        //io_getString(file_nome, 255);
+        printf("Inserisci il nome del file: ");
+        io_getString(file_nome, 255);
         if((file = fopen(file_nome,"r")))   {   //Apertura e controllo del file in sola lettura
             graph_list_parse(grafo_lista, file);  //Lettura dei valori presenti nel file
             fclose(file);

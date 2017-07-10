@@ -9,7 +9,7 @@ int *graph_sp_DFS(GRAPHlist grafo_lista, int idx_src, int idx_dst)  {
     char *color = (char *)malloc(sizeof(char) * (grafo_lista->idx_max)+1);   //creo l'array dei colori associati ai vertici, quantificati in grafo_lista[0]
 
     for(idx=0;idx<=grafo_lista->idx_max;idx++)    {       //inizializzazione grafo
-        if(grafo_lista->vrtx[idx]->adj)
+        if(grafo_lista->vrtx[idx] && grafo_lista->vrtx[idx]->adj)
             color[idx] = 'w';
             pred[idx] = -1;
     }
@@ -33,39 +33,42 @@ int graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, 
     
     LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     color[idx_curr] = 'g'; //GRIGIO sul vertice attuale
-    int ret = 0;
+    int ret = 0, ret_global = 0;
     
     printf("\t[DEBUG DFS] idx_curr[%d]%d Lettura Lista Adiacenza\n", idx_curr, vrtx[idx_curr]->height);            
     while(adj_curr)    {    //ciclo fin quando non svuoto la Lista
         printf("\t[DEBUG DFS] idx_curr[%d]%d - adj_idx[%d]%d \n", idx_curr, vrtx[idx_curr]->height, adj_curr->idx_vrtx_dst, vrtx[adj_curr->idx_vrtx_dst]->height);                    
-        if(graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height)) {  //se l'adiacente rispetta i vincoli richiesti
-            if(color[adj_curr->idx_vrtx_dst] == 'w')  { //se BIANCO
-                if(isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) { //se il successore nella visita va in discesa
-                    isAscent = 0;               //da ora in poi valgono solo percorsi in discesa
-                    printf("\t[DEBUG DFS] Comincia la discesa\n");            
-                }
-                if(adj_curr->idx_vrtx_dst == idx_dst)   {              //se ho raggiunto la destinazione dal nodo attuale
-                    printf("\t[DEBUG DFS] Destinazione RAGGIUNTA - dist_dest_new=%d - dist_dest=%d\n", dist_curr + adj_curr->weight, *dist_dest);            
-                    
-                    if(dist_curr + adj_curr->weight < *dist_dest)  {   //e la distanza accumulata fino alla destinazione è minore della distanza calcolata precedentemente 
-                        *dist_dest = dist_curr + adj_curr->weight;     //aggiorno il valore della distanza accumulata fino alla destinazione
-                        pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore della destinazione
-                        printf("\t[DEBUG DFS] Aggiornata distanza e predecessore\n");                                    
-                        color[idx_curr] = 'w';                         //rimetto in BIANCO il nodo attuale in caso di presenza di altri percorsi calcolabili
-                        return 1;                                      //non continuo la visita del prossimo adiacente e torno indietro
-                    }
-                } else if((ret = graph_sp_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, dist_curr + adj_curr->weight, dist_dest, color, isAscent))) {   //visito il nodo appena incontrato
-                    //se ret == '1', vuol dire che è stata trovata la destinazione, quindi assegno il predecessore
-                    pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente   
-                    printf("\t[DEBUG DFS] Aggiornato predecessore da return\n");            
-                    
-                }                
+        if(color[adj_curr->idx_vrtx_dst] == 'w'     //se BIANCO
+        && graph_sp_conditionElev(vrtx[idx_curr]->height, vrtx[adj_curr->idx_vrtx_dst]->height, isAscent, vrtx[idx_src]->height, vrtx[idx_dst]->height)) {  //se l'adiacente rispetta i vincoli richiesti
+            if(isAscent && (vrtx[idx_curr]->height > vrtx[adj_curr->idx_vrtx_dst]->height)) { //se il successore nella visita va in discesa
+                isAscent = 0;               //da ora in poi valgono solo percorsi in discesa
+                printf("\t[DEBUG DFS] Comincia la discesa\n");            
             }
+            if(adj_curr->idx_vrtx_dst == idx_dst)   {              //se ho raggiunto la destinazione dal nodo attuale
+                printf("\t[DEBUG DFS] Destinazione RAGGIUNTA - dist_dest_new=%d - dist_dest=%d\n", dist_curr + adj_curr->weight, *dist_dest);            
+                
+                if(dist_curr + adj_curr->weight < *dist_dest)  {   //e la distanza accumulata fino alla destinazione è minore della distanza calcolata precedentemente 
+                    *dist_dest = dist_curr + adj_curr->weight;     //aggiorno il valore della distanza accumulata fino alla destinazione
+                    pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore della destinazione
+                    printf("\t\t[DEBUG DFS] Aggiornata distanza e predecessore pred[%d] = %d\n", adj_curr->idx_vrtx_dst, idx_curr);                                    
+                    color[idx_curr] = 'w';                         //rimetto in BIANCO il nodo attuale in caso di presenza di altri percorsi calcolabili
+                    return 1;                                      //non continuo la visita del prossimo adiacente e torno indietro
+                }
+            } else if((ret = graph_sp_DFS_visit(vrtx, adj_curr->idx_vrtx_dst, idx_src, idx_dst, pred, dist_curr + adj_curr->weight, dist_dest, color, isAscent))) {   //visito il nodo appena incontrato
+                //se ret == '1', vuol dire che è stata trovata la destinazione, quindi assegno il predecessore
+                pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente   
+                printf("\t\t[DEBUG DFS] Aggiornato predecessore da return pred[%d] = %d\n", adj_curr->idx_vrtx_dst, idx_curr);            
+                ret_global = 1; //e nel R.A. precedente, avviso che questo successore è valido per il percorso
+                    //N.B.: quando si visita un altro adiacente dopo che ret == 1, ret potrebbe essere == 0,
+                    //quindi ret_global mi assicura che questo nodo venga calcolato nel percorso
+            }                
         }
         printf("\t[DEBUG DFS] Passaggio adiacente successivo\n\n");            
         adj_curr = adj_curr->next;  //passo al prossimo vertice adiacente        
     }
     color[idx_curr] = 'w';  //rimetto in BIANCO il nodo per gli altri percorsi da visitare
+    if(ret_global)  //se è stata trovata la destinazione da almeno un percorso da questo nodo
+        ret = ret_global;
     return ret;
 }
 
@@ -94,6 +97,8 @@ int graph_sp_conditionElev(int height_curr, int height_adj, int isAscent, int he
             printf("\t\t[DEBUG COND] In DISCESA\n");                                    
             if(height_curr >= height_adj && height_adj >= height_dst) //devo necessariamente scendere, o percorrere l'adiacente posto alla stessa altitudine, non andando oltre al di sotto del nodo di destinazione
                 ret = 1;                            //inserendo solo i nodi adiacenti in discesa.
+            else
+                printf("\t\t[DEBUG COND] Adiacente al di sotto della destinazione o adiacente più in alto del nodo attuale\n");                                       
         }                    
     }
     if(ret)
