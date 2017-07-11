@@ -43,44 +43,43 @@ void graph_list_dupEnabler(GRAPHlist grafo_lista)   {
 void graph_list_parse(GRAPHlist grafo_lista, FILE *file)    {
     int idx, idx_src, idx_dst, n_elem, height, weight;
     char cursor;
-    
+    printf("\n");
+    printf("File Caricato:\n");    
     fscanf(file, "%d ", &n_elem);
-    printf("Numero elementi: %d\n", n_elem);
+    printf("\tNumero vertici: %d\n", n_elem);
 
     fscanf(file, "%d\n\n", &(grafo_lista->dup));    
     if(grafo_lista->dup)
-        printf("Duplicati: Ammessi %d\n", grafo_lista->dup);
+        printf("\tDuplicati: Ammessi\n");
     else
-        printf("Duplicati: NON ammessi %d\n", grafo_lista->dup);
+        printf("\tDuplicati: NON ammessi\n");
     io_pressKey();
-
+    printf("\n\n");
     for(idx=0;idx<n_elem;idx++)    {
         fscanf(file, "%d ", &idx_src);    
         fscanf(file, "%d\n", &height);    
         
         graph_list_insVertex(grafo_lista, idx_src, height, -1);	
         //N.B. in caso di duplicati accettati, weight == -1 indica la lettura da file, quindi gli archi adiacenti vengono caricati dopo;
-        
-        printf("DEBUG: inserimento - %d/%d\n", idx, n_elem-1);
-        io_pressKey();
-        
     }
     fscanf(file, "\n");   //conto un a capo in più come separazione 
 
-    while(!feof(file))  {
-        fscanf(file, "%d: ", &idx_src);    
-        printf("DEBUG: vertice partenza - %d\n", idx_src);                
+    while(!feof(file) && cursor != '*')  {
+        fscanf(file, "%d: ", &idx_src); 
+        printf("idx_src = %d\n", idx_src);   
         do {   
             fscanf(file, "%d", &idx_dst);    
             fscanf(file, "(%d)%c", &weight, &cursor);    
-
-            printf("DEBUG: idx_dst[%d](%d)\n", idx_dst, weight);
-            check_cursor(cursor);
-
+            printf("\tidx_dst = %d - weight = %d - ", idx_dst, weight);
+            if(cursor == ' ')
+                printf("[SPAZIO]\n");
+            else if(cursor == '\n')
+                printf("[A CAPO]\n");
             grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, idx_dst, weight); //inserimento in testo nella Lista di Adiacenza di idx_src
-            io_pressKey();  
+            io_pressKey();
+            
         }while(cursor == ' ');
-
+        io_pressKey();
     }
 }
 

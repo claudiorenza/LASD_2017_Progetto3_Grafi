@@ -31,7 +31,15 @@ int main()  {
         }
         printf("\n");
         printf("11. Esci\n");
-        printf("\n\n");
+        
+        if(grafo_lista->n_vrtx != 0) {
+			if(grafo_lista->dup)
+				printf("\t\t\t\t\tDuplicati: Ammessi\n");
+			else
+				printf("\t\t\t\t\tDuplicati: NON ammessi\n");
+		
+		}
+		printf("\n\n");
 
         do {
             printf("SCELTA: ");

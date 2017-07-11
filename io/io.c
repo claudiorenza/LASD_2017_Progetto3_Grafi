@@ -23,30 +23,6 @@ char io_getChar() {
 	return string[0];
 }
 
-//Input da file di interi
-int io_fgetInteger(FILE *file)    {
-	int cursor=0,num=0, lecture=0;
-
-	while((cursor=fgetc(file)) != EOF && isdigit(cursor)) {
-		printf("DEBUG: %c\n", cursor);		
-		if(num <= ((INT_MAX - (cursor-'0'))/10)) {
-			num = num*10 + (cursor-'0'); 
-			lecture++;
-		}
-	    else
-			printf("ATTENZIONE: il numero letto deve essere inferiore a 2147483648");
-	}
-	
-	if(!lecture)
-		printf("ATTENZIONE: numero non presente nel file\n");
-
-	check_cursor(cursor);
-
-	/*if(cursor != EOF)       	//se non è stato raggiunto l'End Of File
-		ungetc(cursor,file);    //rimetto l'ultimo carattere nel file*/
-	return num;
-}
-
 //Pulizia del terminale
 void io_clearScreen()	{
 #ifdef WINDOWS
@@ -61,17 +37,4 @@ void io_pressKey()	{
 	printf("\n");
 	printf("Premere invio per continuare...");
 	getchar();
-}
-
-void check_cursor(char cursor)	{
-	if(cursor == '\n')
-		printf("DEBUG: Carattere - [A capo]\n");
-	else if(cursor == ';')
-		printf("DEBUG: Carattere - ;\n");
-	else if(cursor == ',')
-		printf("DEBUG: Carattere - ,\n");
-	else if(cursor == ' ')
-		printf("DEBUG: Carattere - [Spazio]\n");
-	else
-		printf("DEBUG: Carattere - %c\n", cursor);
 }

@@ -97,7 +97,6 @@ void graph_sp_calculate(GRAPHlist grafo_lista, int *pred, int idx_src, int idx_d
 void graph_sp_calculate_visit(GRAPHvrtx *vrtx, int *pred, int idx_curr, SUCC *sp_succ_up, SUCC *sp_succ_down, int idx_src, int idx_dst, int isAscent, int *vrtx_visited)    {
     LIST adj_curr = vrtx[idx_curr]->adj; //prendo gli elementi della lista di adiacenza del vertice attuale
     int idx_pred;   //indice del predecessore
-    printf("DEBUG: visita [%d]%d\n", idx_curr, vrtx[idx_curr]->height);
     while(adj_curr)    {    //ciclo fin quando non svuoto la lista di adiacenza
         printf("DEBUG: adj [%d]%d\n", adj_curr->idx_vrtx_dst, vrtx[adj_curr->idx_vrtx_dst]->height);
         if(adj_curr->idx_vrtx_dst != pred[idx_curr])     { //se l'adiacente non è un predecessore

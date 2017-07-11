@@ -15,13 +15,10 @@ int io_getInteger();
 
 char io_getChar();
 
-int io_fgetInteger(FILE *file);
-
 
 void io_clearScreen();
 
 void io_pressKey();
 
-void check_cursor(char cursor);
 
 #endif
