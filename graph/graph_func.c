@@ -127,7 +127,7 @@ void graph_func_insertKey(GRAPHlist grafo_lista)	{
         }
 
         graph_list_insVertex(grafo_lista, idx_new, height, weight);      //se il peso è = 0, trattasi di inserimento manuale, quindi in caso di generazione verrà assegnato un peso casuale
-
+        printf("\n\n");
         printf("\tGrafo Aggiornato [<indice>]<altezza> (<peso>)\n");
         graph_func_print(grafo_lista);			//stampa dell'grafo aggiornato
 	} else	//in caso di raggiungimento della capacità massima
@@ -163,7 +163,7 @@ void graph_func_insertArc(GRAPHlist grafo_lista)	{
             }while(weight < 1 || weight > MAX_weight);
             graph_list_insArc(grafo_lista, idx_src, idx_dst, weight);     //3° param = -1: destinazione da scegliere; 4° param = 0: peso da scegliere
             io_clearScreen();
-            printf("Arco inserito in Lista fra i vertici %d <-> %d di peso [%d]\n", idx_src, idx_dst, grafo_lista->vrtx[idx_src]->adj->weight); //accedo direttamente al peso dell'elemento in testa appena inserito
+            printf("Arco inserito in Lista fra i vertici %d <-> %d di peso [%d]\n\n\n", idx_src, idx_dst, grafo_lista->vrtx[idx_src]->adj->weight); //accedo direttamente al peso dell'elemento in testa appena inserito
             printf("\tGrafo Aggiornato [<indice>]<altezza> (<peso>)\n");
             graph_func_print(grafo_lista);			//stampa dell'grafo aggiornato        
         } else  
