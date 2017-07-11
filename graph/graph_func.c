@@ -207,6 +207,7 @@ void graph_func_delete(GRAPHlist grafo_lista)	{
     do	{
         printf("Sei sicuro di voler eliminare il Grafo? (S/N): ");
         confirm = io_getChar();
+        printf("\n");
         if(confirm == 's' || confirm == 'S')	{
             graph_list_deleteGraph(grafo_lista);		//controllo ed eliminazione dell'grafo in caso di conferma
             if(!(grafo_lista->n_vrtx))

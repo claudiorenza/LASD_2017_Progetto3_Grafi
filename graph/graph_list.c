@@ -64,22 +64,14 @@ void graph_list_parse(GRAPHlist grafo_lista, FILE *file)    {
     }
     fscanf(file, "\n");   //conto un a capo in più come separazione 
 
-    while(!feof(file) && cursor != '*')  {
+    while(!feof(file) && cursor != ';')  {
         fscanf(file, "%d: ", &idx_src); 
-        printf("idx_src = %d\n", idx_src);   
         do {   
             fscanf(file, "%d", &idx_dst);    
             fscanf(file, "(%d)%c", &weight, &cursor);    
-            printf("\tidx_dst = %d - weight = %d - ", idx_dst, weight);
-            if(cursor == ' ')
-                printf("[SPAZIO]\n");
-            else if(cursor == '\n')
-                printf("[A CAPO]\n");
+
             grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, idx_dst, weight); //inserimento in testo nella Lista di Adiacenza di idx_src
-            io_pressKey();
-            
         }while(cursor == ' ');
-        io_pressKey();
     }
 }
 
