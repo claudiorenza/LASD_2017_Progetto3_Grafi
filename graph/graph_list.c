@@ -45,33 +45,33 @@ void graph_list_parse(GRAPHlist grafo_lista, FILE *file)    {
     char cursor;
     printf("\n");
     printf("File Caricato:\n");    
-    fscanf(file, "%d ", &n_elem);
+    fscanf(file, "%d ", &n_elem);                  //lettura del numero degli elementi dal file
     printf("\tNumero vertici: %d\n", n_elem);
 
-    fscanf(file, "%d\n\n", &(grafo_lista->dup));    
+    fscanf(file, "%d\n\n", &(grafo_lista->dup));   //flag per l'ammissione dei duplicati
     if(grafo_lista->dup)
         printf("\tDuplicati: Ammessi\n");
     else
         printf("\tDuplicati: NON ammessi\n");
-    io_pressKey();
+    io_pressKey();          //prima di cominciare la lettura, premo invio per continuare
     printf("\n\n");
-    for(idx=0;idx<n_elem;idx++)    {
-        fscanf(file, "%d ", &idx_src);    
-        fscanf(file, "%d\n", &height);    
+    for(idx=0;idx<n_elem;idx++)    {    //ciclicamente per il numero di vertici disponibili
+        fscanf(file, "%d ", &idx_src);  //carico l'indice del vertice
+        fscanf(file, "%d\n", &height);  //e la sua altezza
         
-        graph_list_insVertex(grafo_lista, idx_src, height, -1);	
+        graph_list_insVertex(grafo_lista, idx_src, height, -1);	    //e inserisco fisicamente questo vertice nel grafo
         //N.B. in caso di duplicati accettati, weight == -1 indica la lettura da file, quindi gli archi adiacenti vengono caricati dopo;
     }
     fscanf(file, "\n");   //conto un a capo in più come separazione 
 
-    while(!feof(file) && cursor != ';')  {
-        fscanf(file, "%d: ", &idx_src); 
+    while(!feof(file) && cursor != ';')  {      //fino a fine file e all'arrivo del carattere ';'
+        fscanf(file, "%d: ", &idx_src);         //leggo l'indice sorgente
         do {   
-            fscanf(file, "%d", &idx_dst);    
-            fscanf(file, "(%d)%c", &weight, &cursor);    
+            fscanf(file, "%d", &idx_dst);       //quella di destinazione
+            fscanf(file, "(%d)%c", &weight, &cursor);      //e il peso dell'arco tra parentesi, insieme al carattere di separazione degli elementi adiacenti
 
-            grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, idx_dst, weight); //inserimento in testo nella Lista di Adiacenza di idx_src
-        }while(cursor == ' ');
+            grafo_lista->vrtx[idx_src]->adj = list_insertHead(grafo_lista->vrtx[idx_src]->adj, idx_dst, weight); //inserimento in testa nella Lista di Adiacenza di idx_src
+        }while(cursor == ' ');  //se la separazione è uno spazio, aggiungo un altro adiacente; se invece è '\n' passo ad un altra sorgente
     }
 }
 

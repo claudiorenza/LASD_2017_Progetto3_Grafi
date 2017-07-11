@@ -45,7 +45,7 @@ int graph_sp_DFS_visit(GRAPHvrtx *vrtx, int idx_curr, int idx_src, int idx_dst, 
                 //se ret == '1', vuol dire che è stata trovata la destinazione, quindi assegno il predecessore
                 pred[adj_curr->idx_vrtx_dst] = idx_curr;       //applico l'attuale vertice come predecessore di questo nodo adiacente   
                 ret_global = 1; //e nel R.A. precedente, avviso che questo successore è valido per il percorso
-                    //N.B.: quando si visita un altro adiacente dopo che ret == 1, ret potrebbe essere == 0,
+                    //N.B.: quando si visita un altro adiacente dopo che ret == 1, ret potrebbe essere anche == 0 per la visita di altri percorsi,
                     //quindi ret_global mi assicura che questo nodo venga calcolato nel percorso
             }                
         }
@@ -79,6 +79,7 @@ int graph_sp_conditionElev(int height_curr, int height_adj, int isAscent, int he
     return ret;
 }
 
+//Controllo il passaggio da salita a discesa
 int graph_sp_checkIsAscent(int height_curr, int height_adj, int isAscent)   {
     if(isAscent && height_curr > height_adj) //se il successore nella visita va in discesa
         isAscent = 0;               //da ora in poi valgono solo percorsi in discesa
